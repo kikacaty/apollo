@@ -1,0 +1,104 @@
+perception_obstacle {
+  id: 2468
+  position {
+    x: 587516.448214
+    y: 4140678.11436
+    z: -30.2240081661
+  }
+  theta: 1.72811985573
+  velocity {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  }
+  length: 0.357918977737
+  width: 0.679060101509
+  height: 1.33868992329
+  polygon_point {
+    x: 587516.475676
+    y: 4140677.92196
+    z: -30.2310068117
+  }
+  polygon_point {
+    x: 587516.337735
+    y: 4140677.89564
+    z: -30.2252622905
+  }
+  polygon_point {
+    x: 587516.214804
+    y: 4140677.90607
+    z: -30.2209480199
+  }
+  polygon_point {
+    x: 587516.171595
+    y: 4140677.95444
+    z: -30.2204934432
+  }
+  polygon_point {
+    x: 587516.084839
+    y: 4140678.23793
+    z: -30.2240081473
+  }
+  polygon_point {
+    x: 587516.708363
+    y: 4140678.148
+    z: -30.2450116896
+  }
+  polygon_point {
+    x: 587516.770712
+    y: 4140678.12659
+    z: -30.246816949
+  }
+  tracking_time: 1.30066394806
+  type: UNKNOWN
+  timestamp: 0.0
+}
+perception_obstacle {
+  id: 1000
+  position {
+    x: 587527.658539
+    y: 4140717.01327
+    z: -29.9661701322
+  }
+  theta: 0
+  velocity {
+    x: 0
+    y: 0
+    z: 0
+  }
+  length: 3.0
+  width: 2.0
+  height: 1.0
+  polygon_point {
+    x: 587528.658539
+    y: 4140719.01327
+    z: -29.9661701322
+  }
+  polygon_point {
+    x: 587526.658539
+    y: 4140719.01327
+    z: -29.9661701322
+  }
+  polygon_point {
+    x: 587526.658539
+    y: 4140715.01327
+    z: -29.9661701322
+  }
+  polygon_point {
+    x: 587528.658539
+    y: 4140715.01327
+    z: -29.9661701322
+  }
+  tracking_time: 20.0
+  type: VEHICLE
+  timestamp: 0.0
+}
+header {
+  timestamp_sec: 1505249897.96
+  module_name: "perception_obstacle"
+  sequence_num: 13518
+  lidar_timestamp: 1505249897937562368
+  camera_timestamp: 0
+  radar_timestamp: 0
+}
+error_code: OK

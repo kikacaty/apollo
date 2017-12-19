@@ -1,0 +1,75 @@
+header {
+  timestamp_sec: 1505249900.6
+  module_name: "control"
+  sequence_num: 135436
+  status {
+    error_code: OK
+  }
+}
+throttle: 27.1544983182
+brake: 0.0
+steering_rate: 100.0
+steering_target: -4.02308613322
+gear_location: GEAR_DRIVE
+debug {
+  simple_lon_debug {
+    station_reference: -0.571786378375
+    station_error: 3.49593887757
+    station_error_limited: 2.0
+    preview_station_error: 4.64456218972
+    speed_reference: 5.69259741209
+    speed_error: -0.505081991078
+    speed_controller_input_limited: -0.105081991078
+    preview_speed_reference: 5.79361556068
+    preview_speed_error: -0.404063842489
+    preview_acceleration_reference: 0.504151222268
+    acceleration_cmd_closeloop: 0.160544137541
+    acceleration_cmd: 0.96326689411
+    acceleration_lookup: 0.96326689411
+    speed_lookup: 6.19444465637
+    calibration_value: 27.1544983182
+    throttle_cmd: 27.1544983182
+    brake_cmd: 0.0
+    is_full_stop: false
+  }
+  simple_lat_debug {
+    lateral_error: -0.0690092681009
+    ref_heading: 2.27343484642
+    heading: 2.29223105893
+    heading_error: 0.0187962125043
+    heading_error_rate: -0.00753615405806
+    lateral_error_rate: 0.116425242365
+    curvature: -0.00729630064286
+    steer_angle: -4.02308613322
+    steer_angle_feedforward: -2.03686397288
+    steer_angle_lateral_contribution: 2.36935239077
+    steer_angle_lateral_rate_contribution: -0.163927674063
+    steer_angle_heading_contribution: -4.00466270645
+    steer_angle_heading_rate_contribution: 0.0625360287181
+    steer_angle_feedback: -1.73670196102
+    steering_position: -4.021276474
+    ref_speed: 6.19444465637
+  }
+  input_debug {
+    localization_header {
+      timestamp_sec: 1505249900.59
+      module_name: "localization"
+      sequence_num: 136220
+    }
+    canbus_header {
+      timestamp_sec: 1505249900.59
+      module_name: "chassis"
+      sequence_num: 136035
+    }
+    trajectory_header {
+      timestamp_sec: 1505249900.5
+      module_name: "planning"
+      sequence_num: 893
+    }
+  }
+}
+latency_stats {
+  total_time_ms: 0.637292861938
+  controller_time_ms: 0.483274459839
+  controller_time_ms: 0.00691413879395
+}

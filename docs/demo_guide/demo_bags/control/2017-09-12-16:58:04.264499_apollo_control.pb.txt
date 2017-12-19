@@ -1,0 +1,75 @@
+header {
+  timestamp_sec: 1505249884.26
+  module_name: "control"
+  sequence_num: 133805
+  status {
+    error_code: OK
+  }
+}
+throttle: 0.0
+brake: 20.2949741226
+steering_rate: 100.0
+steering_target: -10.5345093473
+gear_location: GEAR_DRIVE
+debug {
+  simple_lon_debug {
+    station_reference: -0.0817259015348
+    station_error: 3.25021666341
+    station_error_limited: 2.0
+    preview_station_error: 3.57237826774
+    speed_reference: 1.64257628292
+    speed_error: -0.419530301585
+    speed_controller_input_limited: -0.0195303015854
+    preview_speed_reference: 1.57936678001
+    preview_speed_error: -0.482739804494
+    preview_acceleration_reference: -0.313540695249
+    acceleration_cmd_closeloop: -0.287734337151
+    acceleration_cmd: -0.353550233272
+    acceleration_lookup: -0.353550233272
+    speed_lookup: 2.05555558205
+    calibration_value: -20.2949741226
+    throttle_cmd: 0.0
+    brake_cmd: 20.2949741226
+    is_full_stop: false
+  }
+  simple_lat_debug {
+    lateral_error: -0.116852709549
+    ref_heading: -1.94675195382
+    heading: -1.91304472489
+    heading_error: 0.0337072289292
+    heading_error_rate: 0.000199564562411
+    lateral_error_rate: 0.0692739629245
+    curvature: -0.0227165614233
+    steer_angle: -10.5345093473
+    steer_angle_feedforward: -7.01785694459
+    steer_angle_lateral_contribution: 2.50886521155
+    steer_angle_lateral_rate_contribution: -0.0204217686386
+    steer_angle_heading_contribution: -5.88675388584
+    steer_angle_heading_rate_contribution: -0.000476445005593
+    steer_angle_feedback: -3.39878688793
+    steering_position: -9.68085098267
+    ref_speed: 2.05555558205
+  }
+  input_debug {
+    localization_header {
+      timestamp_sec: 1505249884.26
+      module_name: "localization"
+      sequence_num: 134587
+    }
+    canbus_header {
+      timestamp_sec: 1505249884.26
+      module_name: "chassis"
+      sequence_num: 134402
+    }
+    trajectory_header {
+      timestamp_sec: 1505249884.1
+      module_name: "planning"
+      sequence_num: 811
+    }
+  }
+}
+latency_stats {
+  total_time_ms: 0.671863555908
+  controller_time_ms: 0.481367111206
+  controller_time_ms: 0.00619888305664
+}

@@ -1,0 +1,75 @@
+header {
+  timestamp_sec: 1505249885.58
+  module_name: "control"
+  sequence_num: 133936
+  status {
+    error_code: OK
+  }
+}
+throttle: 0.0
+brake: 20.4620000034
+steering_rate: 100.0
+steering_target: -14.9531690154
+gear_location: GEAR_DRIVE
+debug {
+  simple_lon_debug {
+    station_reference: -0.117256809889
+    station_error: 3.00292858079
+    station_error_limited: 2.0
+    preview_station_error: 3.23471121729
+    speed_reference: 1.18657818869
+    speed_error: -0.472096052693
+    speed_controller_input_limited: -0.0720960526933
+    preview_speed_reference: 1.13195516219
+    preview_speed_error: -0.526719079202
+    preview_acceleration_reference: -0.265865398908
+    acceleration_cmd_closeloop: -0.32243245746
+    acceleration_cmd: -0.292389561485
+    acceleration_lookup: -0.292389561485
+    speed_lookup: 1.64999997616
+    calibration_value: -20.4620000034
+    throttle_cmd: 0.0
+    brake_cmd: 20.4620000034
+    is_full_stop: false
+  }
+  simple_lat_debug {
+    lateral_error: -0.137638602724
+    ref_heading: -2.01117888371
+    heading: -1.96716243877
+    heading_error: 0.0440164449433
+    heading_error_rate: -0.00534240293107
+    lateral_error_rate: 0.0726036835033
+    curvature: -0.0309349369564
+    steer_angle: -14.9531690154
+    steer_angle_feedforward: -10.5421251755
+    steer_angle_lateral_contribution: 2.39642235977
+    steer_angle_lateral_rate_contribution: -0.0139396806524
+    steer_angle_heading_contribution: -6.66782637373
+    steer_angle_heading_rate_contribution: 0.00890160765798
+    steer_angle_feedback: -4.27644208696
+    steering_position: -13.8510637283
+    ref_speed: 1.64999997616
+  }
+  input_debug {
+    localization_header {
+      timestamp_sec: 1505249885.57
+      module_name: "localization"
+      sequence_num: 134718
+    }
+    canbus_header {
+      timestamp_sec: 1505249885.57
+      module_name: "chassis"
+      sequence_num: 134533
+    }
+    trajectory_header {
+      timestamp_sec: 1505249885.5
+      module_name: "planning"
+      sequence_num: 818
+    }
+  }
+}
+latency_stats {
+  total_time_ms: 2.33864784241
+  controller_time_ms: 0.988960266113
+  controller_time_ms: 0.00953674316406
+}

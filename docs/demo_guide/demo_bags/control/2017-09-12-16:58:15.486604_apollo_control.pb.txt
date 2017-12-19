@@ -1,0 +1,75 @@
+header {
+  timestamp_sec: 1505249895.49
+  module_name: "control"
+  sequence_num: 134925
+  status {
+    error_code: OK
+  }
+}
+throttle: 20.9130470701
+brake: 0.0
+steering_rate: 100.0
+steering_target: -36.5637505722
+gear_location: GEAR_DRIVE
+debug {
+  simple_lon_debug {
+    station_reference: 0.0
+    station_error: 2.07481089839
+    station_error_limited: 2.0
+    preview_station_error: 2.70970481121
+    speed_reference: 3.1431194554
+    speed_error: -0.37234606328
+    speed_controller_input_limited: 0.0276539367196
+    preview_speed_reference: 3.20573204044
+    preview_speed_error: -0.309733478242
+    preview_acceleration_reference: 0.31166901014
+    acceleration_cmd_closeloop: -0.0022114534895
+    acceleration_cmd: 0.427726329408
+    acceleration_lookup: 0.427726329408
+    speed_lookup: 3.5
+    calibration_value: 20.9130470701
+    throttle_cmd: 20.9130470701
+    brake_cmd: 0.0
+    is_full_stop: false
+  }
+  simple_lat_debug {
+    lateral_error: 0.00571416465175
+    ref_heading: -3.10187927197
+    heading: -3.02307728655
+    heading_error: 0.0788019854277
+    heading_error_rate: -0.0148863107531
+    lateral_error_rate: 0.275521588778
+    curvature: -0.0704848534455
+    steer_angle: -36.5637505722
+    steer_angle_feedforward: -17.9263409532
+    steer_angle_lateral_contribution: -0.180988907021
+    steer_angle_lateral_rate_contribution: -0.203504082262
+    steer_angle_heading_contribution: -17.1443285607
+    steer_angle_heading_rate_contribution: 0.074343306054
+    steer_angle_feedback: -17.4544782439
+    steering_position: -35.0
+    ref_speed: 3.5
+  }
+  input_debug {
+    localization_header {
+      timestamp_sec: 1505249895.48
+      module_name: "localization"
+      sequence_num: 135709
+    }
+    canbus_header {
+      timestamp_sec: 1505249895.48
+      module_name: "chassis"
+      sequence_num: 135524
+    }
+    trajectory_header {
+      timestamp_sec: 1505249895.3
+      module_name: "planning"
+      sequence_num: 867
+    }
+  }
+}
+latency_stats {
+  total_time_ms: 0.571250915527
+  controller_time_ms: 0.462293624878
+  controller_time_ms: 0.00500679016113
+}

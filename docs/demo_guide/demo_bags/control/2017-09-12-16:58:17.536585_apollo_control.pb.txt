@@ -1,0 +1,75 @@
+header {
+  timestamp_sec: 1505249897.54
+  module_name: "control"
+  sequence_num: 135130
+  status {
+    error_code: OK
+  }
+}
+throttle: 24.1210327049
+brake: 0.0
+steering_rate: 100.0
+steering_target: -30.1678973345
+gear_location: GEAR_DRIVE
+debug {
+  simple_lon_debug {
+    station_reference: -0.601171055828
+    station_error: 2.32106401289
+    station_error_limited: 2.0
+    preview_station_error: 3.12482494057
+    speed_reference: 3.97502291312
+    speed_error: -0.126498508702
+    speed_controller_input_limited: 0.273501491298
+    preview_speed_reference: 4.06307295696
+    preview_speed_error: -0.0384484648636
+    preview_acceleration_reference: 0.450720056409
+    acceleration_cmd_closeloop: 0.347291936403
+    acceleration_cmd: 1.0408663511
+    acceleration_lookup: 1.0408663511
+    speed_lookup: 4.09722232819
+    calibration_value: 24.1210327049
+    throttle_cmd: 24.1210327049
+    brake_cmd: 0.0
+    is_full_stop: false
+  }
+  simple_lat_debug {
+    lateral_error: 0.0334630505571
+    ref_heading: 2.6292076754
+    heading: 2.7111567586
+    heading_error: 0.0819490831983
+    heading_error_rate: -0.0371080566105
+    lateral_error_rate: 0.335387927682
+    curvature: -0.0530604641015
+    steer_angle: -30.1678973345
+    steer_angle_feedforward: -13.2188500719
+    steer_angle_lateral_contribution: -1.14252677135
+    steer_angle_lateral_rate_contribution: -0.312181683234
+    steer_angle_heading_contribution: -18.3389758733
+    steer_angle_heading_rate_contribution: 0.221315452075
+    steer_angle_feedback: -19.5723688758
+    steering_position: -30.5957450867
+    ref_speed: 4.09722232819
+  }
+  input_debug {
+    localization_header {
+      timestamp_sec: 1505249897.53
+      module_name: "localization"
+      sequence_num: 135914
+    }
+    canbus_header {
+      timestamp_sec: 1505249897.53
+      module_name: "chassis"
+      sequence_num: 135729
+    }
+    trajectory_header {
+      timestamp_sec: 1505249897.5
+      module_name: "planning"
+      sequence_num: 878
+    }
+  }
+}
+latency_stats {
+  total_time_ms: 0.535488128662
+  controller_time_ms: 0.389337539673
+  controller_time_ms: 0.00739097595215
+}

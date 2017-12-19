@@ -1,0 +1,75 @@
+header {
+  timestamp_sec: 1505249895.48
+  module_name: "control"
+  sequence_num: 134924
+  status {
+    error_code: OK
+  }
+}
+throttle: 20.8949745548
+brake: 0.0
+steering_rate: 100.0
+steering_target: -36.9754379798
+gear_location: GEAR_DRIVE
+debug {
+  simple_lon_debug {
+    station_reference: 0.0
+    station_error: 2.14465426575
+    station_error_limited: 2.0
+    preview_station_error: 2.77954817857
+    speed_reference: 3.1431194554
+    speed_error: -0.372982234462
+    speed_controller_input_limited: 0.027017765538
+    preview_speed_reference: 3.20573204044
+    preview_speed_error: -0.310369649424
+    preview_acceleration_reference: 0.31166901014
+    acceleration_cmd_closeloop: -0.00293058648121
+    acceleration_cmd: 0.424823605417
+    acceleration_lookup: 0.424823605417
+    speed_lookup: 3.5
+    calibration_value: 20.8949745548
+    throttle_cmd: 20.8949745548
+    brake_cmd: 0.0
+    is_full_stop: false
+  }
+  simple_lat_debug {
+    lateral_error: 0.00443762142089
+    ref_heading: -3.10187927197
+    heading: -3.01842532995
+    heading_error: 0.0834539420227
+    heading_error_rate: -0.0155917275232
+    lateral_error_rate: 0.291749870111
+    curvature: -0.0704848534455
+    steer_angle: -36.9754379798
+    steer_angle_feedforward: -17.9263409532
+    steer_angle_lateral_contribution: -0.140556021692
+    steer_angle_lateral_rate_contribution: -0.215490516842
+    steer_angle_heading_contribution: -18.1564181912
+    steer_angle_heading_rate_contribution: 0.0778662081152
+    steer_angle_feedback: -18.4345985216
+    steering_position: -35.0
+    ref_speed: 3.5
+  }
+  input_debug {
+    localization_header {
+      timestamp_sec: 1505249895.47
+      module_name: "localization"
+      sequence_num: 135708
+    }
+    canbus_header {
+      timestamp_sec: 1505249895.47
+      module_name: "chassis"
+      sequence_num: 135523
+    }
+    trajectory_header {
+      timestamp_sec: 1505249895.3
+      module_name: "planning"
+      sequence_num: 867
+    }
+  }
+}
+latency_stats {
+  total_time_ms: 0.530481338501
+  controller_time_ms: 0.412702560425
+  controller_time_ms: 0.0193119049072
+}

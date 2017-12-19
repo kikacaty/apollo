@@ -1,0 +1,1634 @@
+header {
+  timestamp_sec: 1505249893.65
+  module_name: "prediction"
+  sequence_num: 13462
+}
+prediction_obstacle {
+  perception_obstacle {
+    id: 2384
+    position {
+      x: 587533.504915
+      y: 4140695.43693
+      z: -30.4988041752
+    }
+    theta: -1.85328321037
+    velocity {
+      x: -1.66267573833
+      y: -5.72845077515
+      z: 0.0
+    }
+    length: 4.74572849274
+    width: 1.98448264599
+    height: 1.6372756958
+    polygon_point {
+      x: 587533.679148
+      y: 4140693.19928
+      z: -30.4883785166
+    }
+    polygon_point {
+      x: 587532.993621
+      y: 4140693.1145
+      z: -30.4820642424
+    }
+    polygon_point {
+      x: 587532.13376
+      y: 4140693.38898
+      z: -30.4828439609
+    }
+    polygon_point {
+      x: 587532.060676
+      y: 4140693.50861
+      z: -30.4851102794
+    }
+    polygon_point {
+      x: 587532.080771
+      y: 4140693.63331
+      z: -30.4880875375
+    }
+    polygon_point {
+      x: 587532.269622
+      y: 4140694.74063
+      z: -30.5145903798
+    }
+    polygon_point {
+      x: 587532.972432
+      y: 4140696.83714
+      z: -30.566973469
+    }
+    polygon_point {
+      x: 587533.238218
+      y: 4140697.36831
+      z: -30.5808053216
+    }
+    polygon_point {
+      x: 587533.330564
+      y: 4140697.5145
+      z: -30.5847349111
+    }
+    polygon_point {
+      x: 587533.404154
+      y: 4140697.63045
+      z: -30.5878536023
+    }
+    polygon_point {
+      x: 587534.117383
+      y: 4140697.6995
+      z: -30.5939855605
+    }
+    polygon_point {
+      x: 587534.275121
+      y: 4140697.6818
+      z: -30.5945883618
+    }
+    polygon_point {
+      x: 587534.831323
+      y: 4140697.27622
+      z: -30.5888744612
+    }
+    polygon_point {
+      x: 587534.949022
+      y: 4140697.11533
+      z: -30.5859504033
+    }
+    polygon_point {
+      x: 587534.978662
+      y: 4140696.95385
+      z: -30.5824507586
+    }
+    tracking_time: 37.3375151157
+    type: UNKNOWN
+    timestamp: 0.0
+  }
+  timestamp: 1505249893.65
+  predicted_period: 3.0
+  trajectory {
+    probability: 0.95115263476
+    trajectory_point {
+      path_point {
+        x: 587533.568509
+        y: 4140695.51223
+        z: 0.0
+        theta: -1.84027580909
+      }
+      v: 7.10435427438
+      a: 1.72858221058
+      relative_time: 0.0
+    }
+    trajectory_point {
+      path_point {
+        x: 587533.377097
+        y: 4140694.8192
+        z: 0.0
+        theta: -1.84034022119
+      }
+      v: 7.27721249544
+      a: 1.72858221058
+      relative_time: 0.1
+    }
+    trajectory_point {
+      path_point {
+        x: 587533.181065
+        y: 4140694.10963
+        z: 0.0
+        theta: -1.8404025242
+      }
+      v: 7.4500707165
+      a: 1.72858221058
+      relative_time: 0.2
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.980329
+        y: 4140693.3832
+        z: 0.0
+        theta: -1.84046146276
+      }
+      v: 7.62292893756
+      a: 1.72858221058
+      relative_time: 0.3
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.774944
+        y: 4140692.64013
+        z: 0.0
+        theta: -1.84051777652
+      }
+      v: 7.79578715861
+      a: 1.72858221058
+      relative_time: 0.4
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.564912
+        y: 4140691.8804
+        z: 0.0
+        theta: -1.84057163379
+      }
+      v: 7.96864537967
+      a: 1.72858221058
+      relative_time: 0.5
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.350232
+        y: 4140691.10403
+        z: 0.0
+        theta: -1.84055682386
+      }
+      v: 8.14150360073
+      a: 1.72858221058
+      relative_time: 0.6
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.132257
+        y: 4140690.31569
+        z: 0.0
+        theta: -1.85457144984
+      }
+      v: 8.31436182179
+      a: 1.72858221058
+      relative_time: 0.7
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.073032
+        y: 4140690.11262
+        z: 0.0
+        theta: -0.290314787636
+      }
+      v: 8.48722004284
+      a: 1.72858221058
+      relative_time: 0.8
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.074307
+        y: 4140690.11224
+        z: 0.0
+        theta: -0.290315188222
+      }
+      v: 8.6600782639
+      a: 1.72858221058
+      relative_time: 0.9
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.075576
+        y: 4140690.11186
+        z: 0.0
+        theta: -0.290314682202
+      }
+      v: 8.83293648496
+      a: 1.72858221058
+      relative_time: 1.0
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.076838
+        y: 4140690.11149
+        z: 0.0
+        theta: -0.290315161127
+      }
+      v: 9.00579470602
+      a: 1.72858221058
+      relative_time: 1.1
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.078094
+        y: 4140690.11111
+        z: 0.0
+        theta: -0.290314801711
+      }
+      v: 9.17865292708
+      a: 1.72858221058
+      relative_time: 1.2
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.079344
+        y: 4140690.11074
+        z: 0.0
+        theta: -0.290315094885
+      }
+      v: 9.35151114813
+      a: 1.72858221058
+      relative_time: 1.3
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.080588
+        y: 4140690.11037
+        z: 0.0
+        theta: -0.290314720005
+      }
+      v: 9.52436936919
+      a: 1.72858221058
+      relative_time: 1.4
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.081825
+        y: 4140690.11
+        z: 0.0
+        theta: -0.290315004174
+      }
+      v: 9.69722759025
+      a: 1.72858221058
+      relative_time: 1.5
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.083056
+        y: 4140690.10963
+        z: 0.0
+        theta: -0.290315040654
+      }
+      v: 9.87008581131
+      a: 1.72858221058
+      relative_time: 1.6
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.084281
+        y: 4140690.10926
+        z: 0.0
+        theta: -0.290314773293
+      }
+      v: 10.0429440324
+      a: 1.72858221058
+      relative_time: 1.7
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.0855
+        y: 4140690.1089
+        z: 0.0
+        theta: -0.290315034215
+      }
+      v: 10.2158022534
+      a: 1.72858221058
+      relative_time: 1.8
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.086712
+        y: 4140690.10854
+        z: 0.0
+        theta: -0.290315043418
+      }
+      v: 10.3886604745
+      a: 1.72858221058
+      relative_time: 1.9
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.087919
+        y: 4140690.10817
+        z: 0.0
+        theta: -0.290314956659
+      }
+      v: 10.5615186955
+      a: 1.72858221058
+      relative_time: 2.0
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.089119
+        y: 4140690.10782
+        z: 0.0
+        theta: -0.290314665573
+      }
+      v: 10.7343769166
+      a: 1.72858221058
+      relative_time: 2.1
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.090314
+        y: 4140690.10746
+        z: 0.0
+        theta: -0.290315074469
+      }
+      v: 10.9072351377
+      a: 1.72858221058
+      relative_time: 2.2
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.091503
+        y: 4140690.1071
+        z: 0.0
+        theta: -0.290315028497
+      }
+      v: 11.0800933587
+      a: 1.72858221058
+      relative_time: 2.3
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.092685
+        y: 4140690.10675
+        z: 0.0
+        theta: -0.290314965464
+      }
+      v: 11.2529515798
+      a: 1.72858221058
+      relative_time: 2.4
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.093862
+        y: 4140690.1064
+        z: 0.0
+        theta: -0.290314912385
+      }
+      v: 11.4258098008
+      a: 1.72858221058
+      relative_time: 2.5
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.095033
+        y: 4140690.10605
+        z: 0.0
+        theta: -0.290314896824
+      }
+      v: 11.5986680219
+      a: 1.72858221058
+      relative_time: 2.6
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.096198
+        y: 4140690.1057
+        z: 0.0
+        theta: -0.29031497444
+      }
+      v: 11.7715262429
+      a: 1.72858221058
+      relative_time: 2.7
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.097357
+        y: 4140690.10536
+        z: 0.0
+        theta: -0.290314803671
+      }
+      v: 11.944384464
+      a: 1.72858221058
+      relative_time: 2.8
+    }
+    trajectory_point {
+      path_point {
+        x: 587532.09851
+        y: 4140690.10501
+        z: 0.0
+        theta: -0.290314803671
+      }
+      v: 12.1172426851
+      a: 1.72858221058
+      relative_time: 2.9
+    }
+  }
+}
+prediction_obstacle {
+  perception_obstacle {
+    id: 2392
+    position {
+      x: 587487.868502
+      y: 4140737.16923
+      z: -30.8478287094
+    }
+    theta: 2.25391772191
+    velocity {
+      x: -5.47193098068
+      y: 6.7236199379
+      z: 0.0
+    }
+    length: 4.1608672142
+    width: 1.64022386074
+    height: 1.7996929884
+    polygon_point {
+      x: 587489.316671
+      y: 4140736.43362
+      z: -30.8215474416
+    }
+    polygon_point {
+      x: 587489.590796
+      y: 4140736.01071
+      z: -30.8136365353
+    }
+    polygon_point {
+      x: 587489.518581
+      y: 4140735.9058
+      z: -30.8107787192
+    }
+    polygon_point {
+      x: 587489.43155
+      y: 4140735.81027
+      z: -30.8080404523
+    }
+    polygon_point {
+      x: 587489.003369
+      y: 4140735.40095
+      z: -30.7959553053
+    }
+    polygon_point {
+      x: 587488.481853
+      y: 4140735.19229
+      z: -30.7878582094
+    }
+    polygon_point {
+      x: 587488.321721
+      y: 4140735.30449
+      z: -30.789398852
+    }
+    polygon_point {
+      x: 587487.29905
+      y: 4140736.94948
+      z: -30.8204486848
+    }
+    polygon_point {
+      x: 587487.086661
+      y: 4140739.21233
+      z: -30.870787829
+    }
+    polygon_point {
+      x: 587488.373841
+      y: 4140737.84756
+      z: -30.847828668
+    }
+    tracking_time: 22.8297851086
+    type: UNKNOWN
+    timestamp: 0.0
+  }
+  timestamp: 1505249893.65
+  predicted_period: 3.0
+  trajectory {
+    probability: 0.86299687479
+    trajectory_point {
+      path_point {
+        x: 587488.165745
+        y: 4140736.87732
+        z: 0.0
+        theta: 2.21483774012
+      }
+      v: 8.28784907577
+      a: 0.545373963435
+      relative_time: 0.0
+    }
+    trajectory_point {
+      path_point {
+        x: 587487.668797
+        y: 4140737.53917
+        z: 0.0
+        theta: 2.22264180068
+      }
+      v: 8.34238647212
+      a: 0.545373963435
+      relative_time: 0.1
+    }
+    trajectory_point {
+      path_point {
+        x: 587487.156635
+        y: 4140738.21031
+        z: 0.0
+        theta: 2.21740795963
+      }
+      v: 8.39692386846
+      a: 0.545373963435
+      relative_time: 0.2
+    }
+    trajectory_point {
+      path_point {
+        x: 587486.651619
+        y: 4140738.87932
+        z: 0.0
+        theta: 2.22055863105
+      }
+      v: 8.4514612648
+      a: 0.545373963435
+      relative_time: 0.3
+    }
+    trajectory_point {
+      path_point {
+        x: 587486.133124
+        y: 4140739.56171
+        z: 0.0
+        theta: 2.2153354692
+      }
+      v: 8.50599866115
+      a: 0.545373963435
+      relative_time: 0.4
+    }
+    trajectory_point {
+      path_point {
+        x: 587485.628314
+        y: 4140740.23333
+        z: 0.0
+        theta: 2.22378174709
+      }
+      v: 8.56053605749
+      a: 0.545373963435
+      relative_time: 0.5
+    }
+    trajectory_point {
+      path_point {
+        x: 587485.103301
+        y: 4140740.91969
+        z: 0.0
+        theta: 2.21510589923
+      }
+      v: 8.61507345383
+      a: 0.545373963435
+      relative_time: 0.6
+    }
+    trajectory_point {
+      path_point {
+        x: 587484.587266
+        y: 4140741.60658
+        z: 0.0
+        theta: 2.2235590384
+      }
+      v: 8.66961085018
+      a: 0.545373963435
+      relative_time: 0.7
+    }
+    trajectory_point {
+      path_point {
+        x: 587484.051241
+        y: 4140742.30766
+        z: 0.0
+        theta: 2.21576663931
+      }
+      v: 8.72414824652
+      a: 0.545373963435
+      relative_time: 0.8
+    }
+    trajectory_point {
+      path_point {
+        x: 587483.530141
+        y: 4140743.00034
+        z: 0.0
+        theta: 2.21823846983
+      }
+      v: 8.77868564286
+      a: 0.545373963435
+      relative_time: 0.9
+    }
+    trajectory_point {
+      path_point {
+        x: 587482.999349
+        y: 4140743.70228
+        z: 0.0
+        theta: 2.22030856434
+      }
+      v: 8.83322303921
+      a: 0.545373963435
+      relative_time: 1.0
+    }
+    trajectory_point {
+      path_point {
+        x: 587482.458406
+        y: 4140744.41458
+        z: 0.0
+        theta: 2.21627579371
+      }
+      v: 8.88776043555
+      a: 0.545373963435
+      relative_time: 1.1
+    }
+    trajectory_point {
+      path_point {
+        x: 587481.929624
+        y: 4140745.11672
+        z: 0.0
+        theta: 2.21680790069
+      }
+      v: 8.94229783189
+      a: 0.545373963435
+      relative_time: 1.2
+    }
+    trajectory_point {
+      path_point {
+        x: 587481.389332
+        y: 4140745.83335
+        z: 0.0
+        theta: 2.22285977074
+      }
+      v: 8.99683522824
+      a: 0.545373963435
+      relative_time: 1.3
+    }
+    trajectory_point {
+      path_point {
+        x: 587480.839708
+        y: 4140746.55326
+        z: 0.0
+        theta: 2.21587111179
+      }
+      v: 9.05137262458
+      a: 0.545373963435
+      relative_time: 1.4
+    }
+    trajectory_point {
+      path_point {
+        x: 587480.29674
+        y: 4140747.27485
+        z: 0.0
+        theta: 2.22100695668
+      }
+      v: 9.10591002093
+      a: 0.545373963435
+      relative_time: 1.5
+    }
+    trajectory_point {
+      path_point {
+        x: 587479.738774
+        y: 4140748.0085
+        z: 0.0
+        theta: 2.21887386334
+      }
+      v: 9.16044741727
+      a: 0.545373963435
+      relative_time: 1.6
+    }
+    trajectory_point {
+      path_point {
+        x: 587479.182172
+        y: 4140748.7436
+        z: 0.0
+        theta: 2.21632746937
+      }
+      v: 9.21498481361
+      a: 0.545373963435
+      relative_time: 1.7
+    }
+    trajectory_point {
+      path_point {
+        x: 587478.629579
+        y: 4140749.47728
+        z: 0.0
+        theta: 2.2163618943
+      }
+      v: 9.26952220996
+      a: 0.545373963435
+      relative_time: 1.8
+    }
+    trajectory_point {
+      path_point {
+        x: 587478.073359
+        y: 4140750.21573
+        z: 0.0
+        theta: 2.21871374974
+      }
+      v: 9.3240596063
+      a: 0.545373963435
+      relative_time: 1.9
+    }
+    trajectory_point {
+      path_point {
+        x: 587477.507529
+        y: 4140750.96327
+        z: 0.0
+        theta: 2.2192359446
+      }
+      v: 9.37859700264
+      a: 0.545373963435
+      relative_time: 2.0
+    }
+    trajectory_point {
+      path_point {
+        x: 587476.936554
+        y: 4140751.71679
+        z: 0.0
+        theta: 2.21908315057
+      }
+      v: 9.43313439899
+      a: 0.545373963435
+      relative_time: 2.1
+    }
+    trajectory_point {
+      path_point {
+        x: 587476.363127
+        y: 4140752.47378
+        z: 0.0
+        theta: 2.21717636837
+      }
+      v: 9.48767179533
+      a: 0.545373963435
+      relative_time: 2.2
+    }
+    trajectory_point {
+      path_point {
+        x: 587475.791799
+        y: 4140753.231
+        z: 0.0
+        theta: 2.21691959422
+      }
+      v: 9.54220919167
+      a: 0.545373963435
+      relative_time: 2.3
+    }
+    trajectory_point {
+      path_point {
+        x: 587475.221482
+        y: 4140753.98728
+        z: 0.0
+        theta: 2.21706769066
+      }
+      v: 9.59674658802
+      a: 0.545373963435
+      relative_time: 2.4
+    }
+    trajectory_point {
+      path_point {
+        x: 587474.641976
+        y: 4140754.75552
+        z: 0.0
+        theta: 2.22483220238
+      }
+      v: 9.65128398436
+      a: 0.545373963435
+      relative_time: 2.5
+    }
+    trajectory_point {
+      path_point {
+        x: 587474.045701
+        y: 4140755.53334
+        z: 0.0
+        theta: 2.21750654
+      }
+      v: 9.7058213807
+      a: 0.545373963435
+      relative_time: 2.6
+    }
+    trajectory_point {
+      path_point {
+        x: 587473.46029
+        y: 4140756.30869
+        z: 0.0
+        theta: 2.2180576929
+      }
+      v: 9.76035877705
+      a: 0.545373963435
+      relative_time: 2.7
+    }
+    trajectory_point {
+      path_point {
+        x: 587472.876583
+        y: 4140757.0809
+        z: 0.0
+        theta: 2.221314973
+      }
+      v: 9.81489617339
+      a: 0.545373963435
+      relative_time: 2.8
+    }
+    trajectory_point {
+      path_point {
+        x: 587472.277323
+        y: 4140757.86834
+        z: 0.0
+        theta: 2.221314973
+      }
+      v: 9.86943356973
+      a: 0.545373963435
+      relative_time: 2.9
+    }
+  }
+}
+prediction_obstacle {
+  perception_obstacle {
+    id: 2396
+    position {
+      x: 587529.317843
+      y: 4140677.90488
+      z: -30.3533343904
+    }
+    theta: -1.77161716869
+    velocity {
+      x: -1.73691630363
+      y: -8.53250026703
+      z: 0.0
+    }
+    length: 4.03434753418
+    width: 2.04380846024
+    height: 1.13731491566
+    polygon_point {
+      x: 587530.531609
+      y: 4140679.54892
+      z: -30.4180983165
+    }
+    polygon_point {
+      x: 587530.140532
+      y: 4140676.82334
+      z: -30.3533343881
+    }
+    polygon_point {
+      x: 587528.192377
+      y: 4140676.07085
+      z: -30.323703477
+    }
+    polygon_point {
+      x: 587528.119138
+      y: 4140677.1396
+      z: -30.3476518143
+    }
+    polygon_point {
+      x: 587528.668126
+      y: 4140679.15247
+      z: -30.3971417285
+    }
+    polygon_point {
+      x: 587528.706448
+      y: 4140679.29149
+      z: -30.4005625898
+    }
+    polygon_point {
+      x: 587528.864106
+      y: 4140679.77453
+      z: -30.4126044217
+    }
+    polygon_point {
+      x: 587528.908097
+      y: 4140679.87315
+      z: -30.4151383912
+    }
+    polygon_point {
+      x: 587529.068287
+      y: 4140679.90994
+      z: -30.417001635
+    }
+    polygon_point {
+      x: 587529.749664
+      y: 4140679.85059
+      z: -30.4199968438
+    }
+    polygon_point {
+      x: 587530.4065
+      y: 4140679.60982
+      z: -30.4186906105
+    }
+    tracking_time: 17.4269809723
+    type: UNKNOWN
+    timestamp: 0.0
+  }
+  timestamp: 1505249893.65
+  predicted_period: 3.0
+  trajectory {
+    probability: 1.0
+    trajectory_point {
+      path_point {
+        x: 587529.317843
+        y: 4140677.90488
+        z: 0.0
+        theta: -1.76819169558
+      }
+      v: 8.70749327032
+      a: 0.905796147093
+      relative_time: 0.0
+    }
+    trajectory_point {
+      path_point {
+        x: 587529.146407
+        y: 4140677.04771
+        z: 0.0
+        theta: -1.76142033058
+      }
+      v: 8.77565449772
+      a: 0.905796147093
+      relative_time: 0.1
+    }
+    trajectory_point {
+      path_point {
+        x: 587528.979485
+        y: 4140676.18268
+        z: 0.0
+        theta: -1.75475354644
+      }
+      v: 8.84421811169
+      a: 0.905796147093
+      relative_time: 0.2
+    }
+    trajectory_point {
+      path_point {
+        x: 587528.817075
+        y: 4140675.30979
+        z: 0.0
+        theta: -1.74818951802
+      }
+      v: 8.9131748263
+      a: 0.905796147093
+      relative_time: 0.3
+    }
+    trajectory_point {
+      path_point {
+        x: 587528.659179
+        y: 4140674.42905
+        z: 0.0
+        theta: -1.74172644054
+      }
+      v: 8.98251558833
+      a: 0.905796147093
+      relative_time: 0.4
+    }
+    trajectory_point {
+      path_point {
+        x: 587528.505795
+        y: 4140673.54046
+        z: 0.0
+        theta: -1.7353625306
+      }
+      v: 9.05223157227
+      a: 0.905796147093
+      relative_time: 0.5
+    }
+    trajectory_point {
+      path_point {
+        x: 587528.356924
+        y: 4140672.64402
+        z: 0.0
+        theta: -1.72909602695
+      }
+      v: 9.1223141754
+      a: 0.905796147093
+      relative_time: 0.6
+    }
+    trajectory_point {
+      path_point {
+        x: 587528.212566
+        y: 4140671.73972
+        z: 0.0
+        theta: -1.72292519124
+      }
+      v: 9.19275501276
+      a: 0.905796147093
+      relative_time: 0.7
+    }
+    trajectory_point {
+      path_point {
+        x: 587528.072721
+        y: 4140670.82756
+        z: 0.0
+        theta: -1.71684830865
+      }
+      v: 9.26354591221
+      a: 0.905796147093
+      relative_time: 0.8
+    }
+    trajectory_point {
+      path_point {
+        x: 587527.937388
+        y: 4140669.90756
+        z: 0.0
+        theta: -1.71086368839
+      }
+      v: 9.33467890952
+      a: 0.905796147093
+      relative_time: 0.9
+    }
+    trajectory_point {
+      path_point {
+        x: 587527.806569
+        y: 4140668.9797
+        z: 0.0
+        theta: -1.7049696642
+      }
+      v: 9.40614624346
+      a: 0.905796147093
+      relative_time: 1.0
+    }
+    trajectory_point {
+      path_point {
+        x: 587527.680262
+        y: 4140668.04398
+        z: 0.0
+        theta: -1.6991645947
+      }
+      v: 9.47794035095
+      a: 0.905796147093
+      relative_time: 1.1
+    }
+    trajectory_point {
+      path_point {
+        x: 587527.558468
+        y: 4140667.10042
+        z: 0.0
+        theta: -1.69344686369
+      }
+      v: 9.55005386225
+      a: 0.905796147093
+      relative_time: 1.2
+    }
+    trajectory_point {
+      path_point {
+        x: 587527.441187
+        y: 4140666.14899
+        z: 0.0
+        theta: -1.68781488038
+      }
+      v: 9.62247959629
+      a: 0.905796147093
+      relative_time: 1.3
+    }
+    trajectory_point {
+      path_point {
+        x: 587527.328419
+        y: 4140665.18972
+        z: 0.0
+        theta: -1.68226707959
+      }
+      v: 9.69521055591
+      a: 0.905796147093
+      relative_time: 1.4
+    }
+    trajectory_point {
+      path_point {
+        x: 587527.220163
+        y: 4140664.22259
+        z: 0.0
+        theta: -1.67680192182
+      }
+      v: 9.76823992328
+      a: 0.905796147093
+      relative_time: 1.5
+    }
+    trajectory_point {
+      path_point {
+        x: 587527.116421
+        y: 4140663.24761
+        z: 0.0
+        theta: -1.67141789337
+      }
+      v: 9.84156105542
+      a: 0.905796147093
+      relative_time: 1.6
+    }
+    trajectory_point {
+      path_point {
+        x: 587527.017191
+        y: 4140662.26477
+        z: 0.0
+        theta: -1.6661135063
+      }
+      v: 9.91516747965
+      a: 0.905796147093
+      relative_time: 1.7
+    }
+    trajectory_point {
+      path_point {
+        x: 587526.922474
+        y: 4140661.27408
+        z: 0.0
+        theta: -1.66088729848
+      }
+      v: 9.98905288926
+      a: 0.905796147093
+      relative_time: 1.8
+    }
+    trajectory_point {
+      path_point {
+        x: 587526.83227
+        y: 4140660.27554
+        z: 0.0
+        theta: -1.65573783341
+      }
+      v: 10.0632111392
+      a: 0.905796147093
+      relative_time: 1.9
+    }
+    trajectory_point {
+      path_point {
+        x: 587526.746579
+        y: 4140659.26914
+        z: 0.0
+        theta: -1.65066370025
+      }
+      v: 10.137636242
+      a: 0.905796147093
+      relative_time: 2.0
+    }
+    trajectory_point {
+      path_point {
+        x: 587526.665401
+        y: 4140658.25489
+        z: 0.0
+        theta: -1.64566351356
+      }
+      v: 10.2123223632
+      a: 0.905796147093
+      relative_time: 2.1
+    }
+    trajectory_point {
+      path_point {
+        x: 587526.588736
+        y: 4140657.23278
+        z: 0.0
+        theta: -1.64073591324
+      }
+      v: 10.2872638178
+      a: 0.905796147093
+      relative_time: 2.2
+    }
+    trajectory_point {
+      path_point {
+        x: 587526.516583
+        y: 4140656.20283
+        z: 0.0
+        theta: -1.63587956425
+      }
+      v: 10.3624550662
+      a: 0.905796147093
+      relative_time: 2.3
+    }
+    trajectory_point {
+      path_point {
+        x: 587526.448943
+        y: 4140655.16501
+        z: 0.0
+        theta: -1.63109315645
+      }
+      v: 10.4378907099
+      a: 0.905796147093
+      relative_time: 2.4
+    }
+    trajectory_point {
+      path_point {
+        x: 587526.385817
+        y: 4140654.11935
+        z: 0.0
+        theta: -1.62637540436
+      }
+      v: 10.5135654884
+      a: 0.905796147093
+      relative_time: 2.5
+    }
+    trajectory_point {
+      path_point {
+        x: 587526.327202
+        y: 4140653.06583
+        z: 0.0
+        theta: -1.62172504685
+      }
+      v: 10.589474275
+      a: 0.905796147093
+      relative_time: 2.6
+    }
+    trajectory_point {
+      path_point {
+        x: 587526.273101
+        y: 4140652.00445
+        z: 0.0
+        theta: -1.61714084693
+      }
+      v: 10.6656120731
+      a: 0.905796147093
+      relative_time: 2.7
+    }
+    trajectory_point {
+      path_point {
+        x: 587526.223513
+        y: 4140650.93523
+        z: 0.0
+        theta: -1.61262159142
+      }
+      v: 10.7419740133
+      a: 0.905796147093
+      relative_time: 2.8
+    }
+    trajectory_point {
+      path_point {
+        x: 587526.178437
+        y: 4140649.85814
+        z: 0.0
+        theta: -1.61262159142
+      }
+      v: 10.8185553491
+      a: 0.905796147093
+      relative_time: 2.9
+    }
+  }
+}
+prediction_obstacle {
+  perception_obstacle {
+    id: 2452
+    position {
+      x: 587516.326387
+      y: 4140678.03922
+      z: -30.2474653356
+    }
+    theta: 1.72525792142
+    velocity {
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    }
+    length: 0.575504183769
+    width: 0.752545893192
+    height: 1.30763173103
+    polygon_point {
+      x: 587516.702695
+      y: 4140678.05416
+      z: -30.2512392773
+    }
+    polygon_point {
+      x: 587516.370356
+      y: 4140677.73124
+      z: -30.2417398477
+    }
+    polygon_point {
+      x: 587515.935584
+      y: 4140678.10338
+      z: -30.2474652915
+    }
+    polygon_point {
+      x: 587516.277898
+      y: 4140678.3225
+      z: -30.2546569178
+    }
+    tracking_time: 0.200102090836
+    type: UNKNOWN
+    timestamp: 0.0
+  }
+  timestamp: 1505249893.65
+  predicted_period: 3.0
+  trajectory {
+    probability: 1.0
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 0.0
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 0.1
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 0.2
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 0.3
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 0.4
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 0.5
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 0.6
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 0.7
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 0.8
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 0.9
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 1.0
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 1.1
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 1.2
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 1.3
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 1.4
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 1.5
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 1.6
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 1.7
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 1.8
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 1.9
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 2.0
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 2.1
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 2.2
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 2.3
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 2.4
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 2.5
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 2.6
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 2.7
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 2.8
+    }
+    trajectory_point {
+      path_point {
+        x: 587516.326387
+        y: 4140678.03922
+        z: 0.0
+        theta: 0.0
+      }
+      v: 0.0
+      a: 0.0
+      relative_time: 2.9
+    }
+  }
+}
+perception_error_code: OK
