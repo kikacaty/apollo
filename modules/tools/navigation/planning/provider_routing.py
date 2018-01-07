@@ -21,6 +21,7 @@ import threading
 import math
 from shapely.geometry import LineString, Point
 from numpy.polynomial import polynomial as P
+from local_path import LocalPath
 
 # sudo apt-get install libgeos-dev
 # sudo pip install shapely
@@ -63,15 +64,20 @@ class RoutingProvider:
     def __init__(self):
         self.routing_str = None
         self.routing_points = []
+        self.routing = None
         self.routing_lock = threading.Lock()
         self.SMOOTH_FORWARD_DIST = 150
         self.SMOOTH_BACKWARD_DIST = 150
+        self.human = False
 
     def update(self, routing_str):
         self.routing_str = routing_str
         routing_json = json.loads(routing_str.data)
         routing_points = []
+        self.human = False
         for step in routing_json:
+            if step.get('human'):
+                self.human = True
             points = step['polyline']['points']
             for point in points:
                 routing_points.append(point)
@@ -79,31 +85,31 @@ class RoutingProvider:
         self.routing_lock.acquire()
         self.routing_points = routing_points
         self.routing_lock.release()
+        self.routing = LineString(self.routing_points)
 
     def get_segment(self, utm_x, utm_y):
         if self.routing_str is None:
             return None
         point = Point(utm_x, utm_y)
-        routing = LineString(self.routing_points)
-        if routing.distance(point) > 10:
+        if self.routing.distance(point) > 10:
             return []
-        if routing.length < 10:
+        if self.routing.length < 10:
             return []
-        vehicle_distance = routing.project(point)
+        vehicle_distance = self.routing.project(point)
         points = []
-        total_length = routing.length
+        total_length = self.routing.length
         for i in range(self.SMOOTH_BACKWARD_DIST):
             backward_dist = vehicle_distance - self.SMOOTH_BACKWARD_DIST + i
             if backward_dist < 0:
                 continue
-            p = routing.interpolate(backward_dist)
+            p = self.routing.interpolate(backward_dist)
             points.append(p.coords[0])
 
         for i in range(self.SMOOTH_FORWARD_DIST):
             forward_dist = vehicle_distance + i
             if forward_dist >= total_length:
                 break
-            p = routing.interpolate(forward_dist)
+            p = self.routing.interpolate(forward_dist)
             points.append(p.coords[0])
         return points
 
@@ -146,8 +152,28 @@ class RoutingProvider:
         mono_seg_y = seg_y[left_cut_idx:right_cut_idx]
         return mono_seg_x, mono_seg_y
 
+    def get_local_ref(self, local_seg_x, local_seg_y):
+        ref_x = []
+        ref_y = []
+        points = []
+        for i in range(len(local_seg_x)):
+            x = local_seg_x[i]
+            y = local_seg_y[i]
+            points.append((x, y))
+        line = LineString(points)
+        dist = line.project(Point((0, 0)))
+        for i in range(int(line.length - dist) + 1):
+            p = line.interpolate(i + dist)
+            ref_x.append(p.x)
+            ref_y.append(p.y)
+        return ref_x, ref_y
+
     def get_local_segment_spline(self, utm_x, utm_y, heading):
         local_seg_x, local_seg_y = self.get_local_segment(utm_x, utm_y, heading)
+        if len(local_seg_x) <= 10:
+            return [], []
+        if self.human:
+            return self.get_local_ref(local_seg_x, local_seg_y)
         mono_seg_x, mono_seg_y = self.to_monotonic_segment(
             local_seg_x, local_seg_y)
 
@@ -173,3 +199,109 @@ class RoutingProvider:
         X = np.linspace(int(mono_seg_x[0]), int(mono_seg_x[-1]),
                         int(mono_seg_x[-1]))
         return X, sp(X)
+
+    def get_local_path(self, adv, path_range):
+        utm_x = adv.x
+        utm_y = adv.y
+        heading = adv.heading
+        local_seg_x, local_seg_y = self.get_local_segment(utm_x, utm_y, heading)
+        if len(local_seg_x) <= 10:
+            return LocalPath([])
+        if self.human:
+            x, y = self.get_local_ref(local_seg_x, local_seg_y)
+            points = []
+            for i in range(path_range):
+                if i < len(x):
+                    points.append([x[i], y[i]])
+            return LocalPath(points)
+
+        mono_seg_x, mono_seg_y = self.to_monotonic_segment(
+            local_seg_x, local_seg_y)
+
+        if len(mono_seg_x) <= 10:
+            return LocalPath([])
+        k = 3
+        n = len(mono_seg_x)
+        std = 0.5
+        sp = optimized_spline(mono_seg_x, mono_seg_y, k, s=n * std)
+        X = np.linspace(0, int(local_seg_x[-1]), int(local_seg_x[-1]))
+        y = sp(X)
+        points = []
+        for i in range(path_range):
+            if i < len(X):
+                points.append([X[i], y[i]])
+        return LocalPath(points)
+
+
+if __name__ == "__main__":
+    import rospy
+    from std_msgs.msg import String
+    import matplotlib.pyplot as plt
+    from modules.localization.proto import localization_pb2
+    from modules.canbus.proto import chassis_pb2
+    from ad_vehicle import ADVehicle
+    import matplotlib.animation as animation
+
+
+    def localization_callback(localization_pb):
+        ad_vehicle.update_localization(localization_pb)
+
+
+    def routing_callback(routing_str):
+        routing.update(routing_str)
+
+
+    def chassis_callback(chassis_pb):
+        ad_vehicle.update_chassis(chassis_pb)
+
+
+    def update(frame):
+        routing_line_x = []
+        routing_line_y = []
+        for point in routing.routing_points:
+            routing_line_x.append(point[0])
+            routing_line_y.append(point[1])
+        routing_line.set_xdata(routing_line_x)
+        routing_line.set_ydata(routing_line_y)
+
+        vehicle_point.set_xdata([ad_vehicle.x])
+        vehicle_point.set_ydata([ad_vehicle.y])
+
+        if ad_vehicle.is_ready():
+            path = routing.get_local_path(ad_vehicle.x, ad_vehicle.y,
+                                          ad_vehicle.heading)
+            path_x, path_y = path.get_xy()
+            local_line.set_xdata(path_x)
+            local_line.set_ydata(path_y)
+
+        ax.autoscale_view()
+        ax.relim()
+        # ax2.autoscale_view()
+        # ax2.relim()
+
+
+    ad_vehicle = ADVehicle()
+    routing = RoutingProvider()
+
+    rospy.init_node("routing_debug", anonymous=True)
+    rospy.Subscriber('/apollo/localization/pose',
+                     localization_pb2.LocalizationEstimate,
+                     localization_callback)
+    rospy.Subscriber('/apollo/navigation/routing',
+                     String, routing_callback)
+    rospy.Subscriber('/apollo/canbus/chassis',
+                     chassis_pb2.Chassis,
+                     chassis_callback)
+
+    fig = plt.figure()
+    ax = plt.subplot2grid((3, 1), (0, 0), rowspan=2, colspan=1)
+    ax2 = plt.subplot2grid((3, 1), (2, 0), rowspan=1, colspan=1)
+    routing_line, = ax.plot([], [], 'r-')
+    vehicle_point, = ax.plot([], [], 'ko')
+    local_line, = ax2.plot([], [], 'b-')
+
+    ani = animation.FuncAnimation(fig, update, interval=100)
+    ax2.set_xlim([-2, 200])
+    ax2.set_ylim([-50, 50])
+    # ax2.axis('equal')
+    plt.show()

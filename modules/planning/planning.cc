@@ -53,14 +53,10 @@ void Planning::RegisterPlanners() {
 
 Status Planning::InitFrame(const uint32_t sequence_num,
                            const TrajectoryPoint& planning_start_point,
+                           const double start_time,
                            const VehicleState& vehicle_state) {
-  frame_.reset(new Frame(sequence_num, planning_start_point, vehicle_state));
-  if (FLAGS_enable_prediction && !AdapterManager::GetPrediction()->Empty()) {
-    const auto& prediction =
-        AdapterManager::GetPrediction()->GetLatestObserved();
-    frame_->SetPrediction(prediction);
-    ADEBUG << "Get prediction: " << prediction.DebugString();
-  }
+  frame_.reset(
+      new Frame(sequence_num, planning_start_point, start_time, vehicle_state));
   auto status = frame_->Init();
   if (!status.ok()) {
     AERROR << "failed to init frame";
@@ -100,7 +96,7 @@ Status Planning::Init() {
     return Status(ErrorCode::PLANNING_ERROR, error_msg);
   }
   if (FLAGS_enable_prediction && AdapterManager::GetPrediction() == nullptr) {
-    std::string error_msg("Prediction is not registered");
+    std::string error_msg("Enabled prediction, but no prediction is observed.");
     AERROR << error_msg;
     return Status(ErrorCode::PLANNING_ERROR, error_msg);
   }
@@ -139,11 +135,18 @@ Status Planning::Start() {
   timer_ = AdapterManager::CreateTimer(
       ros::Duration(1.0 / FLAGS_planning_loop_rate), &Planning::OnTimer, this);
   ReferenceLineProvider::instance()->Start();
+  start_time_ = Clock::NowInSeconds();
   AINFO << "Planning started";
   return Status::OK();
 }
 
-void Planning::OnTimer(const ros::TimerEvent&) { RunOnce(); }
+void Planning::OnTimer(const ros::TimerEvent&) {
+  RunOnce();
+  if (FLAGS_planning_test_mode && FLAGS_test_duration > 0.0 &&
+      Clock::NowInSeconds() - start_time_ > FLAGS_test_duration) {
+    ros::shutdown();
+  }
+}
 
 void Planning::PublishPlanningPb(ADCTrajectory* trajectory_pb,
                                  double timestamp) {
@@ -223,28 +226,30 @@ void Planning::RunOnce() {
   }
 
   if (!status.ok() || !IsVehicleStateValid(vehicle_state)) {
-    AERROR << "Update VehicleStateProvider failed.";
-    not_ready->set_reason("Update VehicleStateProvider failed.");
+    std::string msg("Update VehicleStateProvider failed");
+    AERROR << msg;
+    not_ready->set_reason(msg);
     status.Save(not_ready_pb.mutable_header()->mutable_status());
     PublishPlanningPb(&not_ready_pb, start_timestamp);
     return;
   }
 
-  // Update reference line provider
-  ReferenceLineProvider::instance()->UpdateVehicleState(vehicle_state);
-
   if (!ReferenceLineProvider::instance()->UpdateRoutingResponse(
           AdapterManager::GetRoutingResponse()->GetLatestObserved())) {
-    AERROR << "Failed to update routing in reference line provider";
+    std::string msg("Failed to update routing in reference line provider");
+    AERROR << msg;
+    not_ready->set_reason(msg);
+    status.Save(not_ready_pb.mutable_header()->mutable_status());
+    PublishPlanningPb(&not_ready_pb, start_timestamp);
     return;
   }
 
   if (FLAGS_enable_prediction && AdapterManager::GetPrediction()->Empty()) {
-    not_ready->set_reason("prediction not ready");
-    AERROR << not_ready->reason() << "; skip the planning cycle.";
-    PublishPlanningPb(&not_ready_pb, start_timestamp);
-    return;
+    AERROR_EVERY(100) << "prediction is enabled but no prediction provided";
   }
+
+  // Update reference line provider
+  ReferenceLineProvider::instance()->UpdateVehicleState(vehicle_state);
 
   const double planning_cycle_time = 1.0 / FLAGS_planning_loop_rate;
   bool is_replan = false;
@@ -254,58 +259,72 @@ void Planning::RunOnce() {
           last_publishable_trajectory_.get(), &is_replan);
 
   const uint32_t frame_num = AdapterManager::GetPlanning()->GetSeqNum() + 1;
-  status = InitFrame(frame_num, stitching_trajectory.back(), vehicle_state);
-  ADCTrajectory trajectory_pb;
-  if (FLAGS_enable_record_debug) {
-    frame_->RecordInputDebug(trajectory_pb.mutable_debug());
+  status = InitFrame(frame_num, stitching_trajectory.back(), start_timestamp,
+                     vehicle_state);
+  if (!frame_) {
+    std::string msg("Failed to init frame");
+    AERROR << msg;
+    not_ready->set_reason(msg);
+    status.Save(not_ready_pb.mutable_header()->mutable_status());
+    PublishPlanningPb(&not_ready_pb, start_timestamp);
+    return;
   }
-  trajectory_pb.mutable_latency_stats()->set_init_frame_time_ms(
+  auto* trajectory_pb = frame_->mutable_trajectory();
+  if (FLAGS_enable_record_debug) {
+    frame_->RecordInputDebug(trajectory_pb->mutable_debug());
+  }
+  trajectory_pb->mutable_latency_stats()->set_init_frame_time_ms(
       Clock::NowInSeconds() - start_timestamp);
   if (!status.ok()) {
-    AERROR << "Init frame failed";
+    std::string msg("Failed to init frame");
+    AERROR << msg;
     if (FLAGS_publish_estop) {
       ADCTrajectory estop;
       estop.mutable_estop();
       status.Save(estop.mutable_header()->mutable_status());
       PublishPlanningPb(&estop, start_timestamp);
+    } else {
+      not_ready->set_reason(msg);
+      status.Save(not_ready_pb.mutable_header()->mutable_status());
+      PublishPlanningPb(&not_ready_pb, start_timestamp);
     }
-    if (frame_) {
-      auto seq_num = frame_->SequenceNum();
-      FrameHistory::instance()->Add(seq_num, std::move(frame_));
-    }
+
+    auto seq_num = frame_->SequenceNum();
+    FrameHistory::instance()->Add(seq_num, std::move(frame_));
+
     return;
   }
 
-  status = Plan(start_timestamp, stitching_trajectory, &trajectory_pb);
+  status = Plan(start_timestamp, stitching_trajectory, trajectory_pb);
 
   const auto time_diff_ms = (Clock::NowInSeconds() - start_timestamp) * 1000;
   ADEBUG << "total planning time spend: " << time_diff_ms << " ms.";
 
-  trajectory_pb.mutable_latency_stats()->set_total_time_ms(time_diff_ms);
-  ADEBUG << "Planning latency: " << trajectory_pb.latency_stats().DebugString();
+  trajectory_pb->mutable_latency_stats()->set_total_time_ms(time_diff_ms);
+  ADEBUG << "Planning latency: "
+         << trajectory_pb->latency_stats().DebugString();
 
-  auto* ref_line_task = trajectory_pb.mutable_latency_stats()->add_task_stats();
+  auto* ref_line_task =
+      trajectory_pb->mutable_latency_stats()->add_task_stats();
   ref_line_task->set_time_ms(
       ReferenceLineProvider::instance()->LastTimeDelay() * 1000.0);
   ref_line_task->set_name("ReferenceLineProvider");
 
   if (!status.ok()) {
-    status.Save(trajectory_pb.mutable_header()->mutable_status());
+    status.Save(trajectory_pb->mutable_header()->mutable_status());
     AERROR << "Planning failed:" << status.ToString();
     if (FLAGS_publish_estop) {
       AERROR << "Planning failed and set estop";
-      trajectory_pb.mutable_estop();
+      trajectory_pb->mutable_estop();
     }
   }
 
-  trajectory_pb.set_is_replan(is_replan);
-  PublishPlanningPb(&trajectory_pb, start_timestamp);
-  ADEBUG << "Planning pb:" << trajectory_pb.header().DebugString();
+  trajectory_pb->set_is_replan(is_replan);
+  PublishPlanningPb(trajectory_pb, start_timestamp);
+  ADEBUG << "Planning pb:" << trajectory_pb->header().DebugString();
 
-  if (frame_) {
-    auto seq_num = frame_->SequenceNum();
-    FrameHistory::instance()->Add(seq_num, std::move(frame_));
-  }
+  auto seq_num = frame_->SequenceNum();
+  FrameHistory::instance()->Add(seq_num, std::move(frame_));
 }
 
 void Planning::Stop() {
@@ -321,6 +340,22 @@ void Planning::SetLastPublishableTrajectory(
   last_publishable_trajectory_.reset(new PublishableTrajectory(adc_trajectory));
 }
 
+void Planning::ExportReferenceLineDebug(planning_internal::Debug* debug) {
+  if (!FLAGS_enable_record_debug) {
+    return;
+  }
+  for (auto& reference_line_info : frame_->reference_line_info()) {
+    auto rl_debug = debug->mutable_planning_data()->add_reference_line();
+    rl_debug->set_id(reference_line_info.Lanes().Id());
+    rl_debug->set_length(reference_line_info.reference_line().Length());
+    rl_debug->set_cost(reference_line_info.Cost());
+    rl_debug->set_is_change_lane_path(reference_line_info.IsChangeLanePath());
+    rl_debug->set_is_drivable(reference_line_info.IsDrivable());
+    rl_debug->set_is_protected(reference_line_info.GetRightOfWayStatus() ==
+                               ADCTrajectory::PROTECTED);
+  }
+}
+
 Status Planning::Plan(const double current_time_stamp,
                       const std::vector<TrajectoryPoint>& stitching_trajectory,
                       ADCTrajectory* trajectory_pb) {
@@ -330,25 +365,41 @@ Status Planning::Plan(const double current_time_stamp,
         stitching_trajectory.back());
   }
   auto status = Status::OK();
-  for (auto& reference_line_info : frame_->reference_line_info()) {
-    status = planner_->Plan(stitching_trajectory.back(), frame_.get(),
-                            &reference_line_info);
-    if (status == Status::OK()) {
-      if (FLAGS_prioritize_change_lane && reference_line_info.IsDrivable() &&
-          reference_line_info.IsChangeLanePath()) {
-        ADEBUG << "Found change lane line, skip other reference line";
-        break;
-      }
-    } else {
-      AERROR << "planner failed to make a driving plan for: "
-             << reference_line_info.Lanes().Id();
+  bool has_plan = false;
+  auto it = std::find_if(
+      frame_->reference_line_info().begin(),
+      frame_->reference_line_info().end(),
+      [](const ReferenceLineInfo& ref) { return ref.IsChangeLanePath(); });
+  if (it != frame_->reference_line_info().end()) {
+    status = planner_->Plan(stitching_trajectory.back(), frame_.get(), &(*it));
+    has_plan = (it->IsDrivable() && it->IsChangeLanePath() &&
+                it->TrajectoryLength() > FLAGS_change_lane_min_length);
+    if (!has_plan) {
+      AERROR << "Fail to plan for lane change.";
     }
   }
+
+  if (!has_plan || !FLAGS_prioritize_change_lane) {
+    for (auto& reference_line_info : frame_->reference_line_info()) {
+      if (reference_line_info.IsChangeLanePath()) {
+        continue;
+      }
+      status = planner_->Plan(stitching_trajectory.back(), frame_.get(),
+                              &reference_line_info);
+      if (status != Status::OK()) {
+        AERROR << "planner failed to make a driving plan for: "
+               << reference_line_info.Lanes().Id();
+      }
+    }
+  }
+
+  ExportReferenceLineDebug(ptr_debug);
+
   const auto* best_reference_line = frame_->FindDriveReferenceLineInfo();
   if (!best_reference_line) {
     std::string msg(
-        "planner failed to make a driving plan because NO valid reference line "
-        "info.");
+        "planner failed to make a driving plan because NO valid reference "
+        "line info.");
     AERROR << msg;
     if (last_publishable_trajectory_) {
       last_publishable_trajectory_->Clear();
@@ -358,6 +409,12 @@ Status Planning::Plan(const double current_time_stamp,
   ptr_debug->MergeFrom(best_reference_line->debug());
   trajectory_pb->mutable_latency_stats()->MergeFrom(
       best_reference_line->latency_stats());
+  // set right of way status
+  trajectory_pb->set_right_of_way_status(
+      best_reference_line->GetRightOfWayStatus());
+  for (const auto& id : best_reference_line->TargetLaneId()) {
+    trajectory_pb->add_lane_id()->CopyFrom(id);
+  }
 
   best_reference_line->ExportDecision(trajectory_pb->mutable_decision());
 
@@ -395,6 +452,9 @@ Status Planning::Plan(const double current_time_stamp,
   }
 
   last_publishable_trajectory_->PopulateTrajectoryProtobuf(trajectory_pb);
+
+  best_reference_line->ExportEngageAdvice(
+      trajectory_pb->mutable_engage_advice());
 
   return status;
 }

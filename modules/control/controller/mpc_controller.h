@@ -30,13 +30,13 @@
 
 #include "modules/common/configs/proto/vehicle_config.pb.h"
 
+#include "modules/common/filters/digital_filter.h"
+#include "modules/common/filters/digital_filter_coefficients.h"
+#include "modules/common/filters/mean_filter.h"
 #include "modules/control/common/interpolation_1d.h"
 #include "modules/control/common/interpolation_2d.h"
 #include "modules/control/common/trajectory_analyzer.h"
 #include "modules/control/controller/controller.h"
-#include "modules/control/filters/digital_filter.h"
-#include "modules/control/filters/digital_filter_coefficients.h"
-#include "modules/control/filters/mean_filter.h"
 
 /**
  * @namespace apollo::control
@@ -107,6 +107,8 @@ class MPCController : public Controller {
 
   void UpdateMatrix();
 
+  void FeedforwardUpdate(SimpleMPCDebug *debug);
+
   double GetLateralError(
       const common::math::Vec2d &point,
       apollo::common::TrajectoryPoint *trajectory_point) const;
@@ -135,6 +137,8 @@ class MPCController : public Controller {
 
   void LoadControlCalibrationTable(
       const MPCControllerConf &mpc_controller_conf);
+
+  void LoadMPCGainScheduler(const MPCControllerConf &mpc_controller_conf);
 
   std::unique_ptr<Interpolation2D> control_interpolation_;
 
@@ -190,6 +194,8 @@ class MPCController : public Controller {
   Eigen::MatrixXd matrix_k_;
   // control authority weighting matrix
   Eigen::MatrixXd matrix_r_;
+  // updated control authority weighting matrix
+  Eigen::MatrixXd matrix_r_updated_;
   // state weighting matrix
   Eigen::MatrixXd matrix_q_;
   // updated state weighting matrix
@@ -224,14 +230,15 @@ class MPCController : public Controller {
   // parameters for mpc solver; threshold for computation
   double mpc_eps_ = 0.0;
 
-  DigitalFilter digital_filter_;
+  common::DigitalFilter digital_filter_;
 
   std::unique_ptr<Interpolation1D> lat_err_interpolation_;
 
   std::unique_ptr<Interpolation1D> heading_err_interpolation_;
 
-  // MeanFilter heading_rate_filter_;
-  MeanFilter lateral_error_filter_;
+  std::unique_ptr<Interpolation1D> feedforwardterm_interpolation_;
+
+  std::unique_ptr<Interpolation1D> steer_weight_interpolation_;
 
   // for logging purpose
   std::ofstream steer_log_file_;
@@ -245,6 +252,10 @@ class MPCController : public Controller {
   double brake_deadzone_ = 0.0;
 
   double heading_error_rate_ = 0.0;
+
+  double steer_angle_feedforwardterm_ = 0.0;
+
+  double steer_angle_feedforwardterm_updated_ = 0.0;
 };
 
 }  // namespace control

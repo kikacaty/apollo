@@ -41,12 +41,15 @@ namespace planning {
 
 using MapPath = hdmap::Path;
 using apollo::common::SLPoint;
+using apollo::hdmap::InterpolatedIndex;
 
 ReferenceLine::ReferenceLine(
     const std::vector<ReferencePoint>& reference_points)
     : reference_points_(reference_points),
       map_path_(MapPath(std::vector<hdmap::MapPathPoint>(
-          reference_points.begin(), reference_points.end()))) {}
+          reference_points.begin(), reference_points.end()))) {
+  CHECK_EQ(map_path_.num_points(), reference_points_.size());
+}
 
 ReferenceLine::ReferenceLine(const MapPath& hdmap_path)
     : map_path_(hdmap_path) {
@@ -57,6 +60,7 @@ ReferenceLine::ReferenceLine(const MapPath& hdmap_path)
         hdmap::MapPathPoint(point, point.heading(), lane_waypoint), 0.0, 0.0,
         0.0, 0.0);
   }
+  CHECK_EQ(map_path_.num_points(), reference_points_.size());
 }
 
 bool ReferenceLine::Stitch(const ReferenceLine& other) {
@@ -191,20 +195,20 @@ ReferencePoint ReferenceLine::GetReferencePoint(const double s) const {
     return reference_points_.back();
   }
 
-  auto it_lower =
-      std::lower_bound(accumulated_s.begin(), accumulated_s.end(), s);
-  if (it_lower == accumulated_s.begin()) {
-    return reference_points_.front();
-  } else {
-    auto index = std::distance(accumulated_s.begin(), it_lower);
-    const auto& p0 = reference_points_[index - 1];
-    const auto& p1 = reference_points_[index];
+  auto interpolate_index = map_path_.GetIndexFromS(s);
 
-    const double s0 = accumulated_s[index - 1];
-    const double s1 = accumulated_s[index];
-
-    return Interpolate(p0, s0, p1, s1, s);
+  uint32_t index = interpolate_index.id;
+  uint32_t next_index = index + 1;
+  if (next_index >= reference_points_.size()) {
+    next_index = reference_points_.size() - 1;
   }
+
+  const auto& p0 = reference_points_[index];
+  const auto& p1 = reference_points_[next_index];
+
+  const double s0 = accumulated_s[index];
+  const double s1 = accumulated_s[next_index];
+  return InterpolateWithMatchedIndex(p0, s0, p1, s1, interpolate_index);
 }
 
 double ReferenceLine::FindMinDistancePoint(const ReferencePoint& p0,
@@ -293,6 +297,30 @@ bool ReferenceLine::XYToSL(const common::math::Vec2d& xy_point,
   return true;
 }
 
+ReferencePoint ReferenceLine::InterpolateWithMatchedIndex(
+    const ReferencePoint& p0, const double s0, const ReferencePoint& p1,
+    const double s1, const InterpolatedIndex& index) const {
+  if (std::fabs(s0 - s1) < common::math::kMathEpsilon) {
+    return p0;
+  }
+  double s = s0 + index.offset;
+  DCHECK_LE(s0 - 1.0e-6, s) << " s: " << s << " is less than s0 :" << s0;
+  DCHECK_LE(s, s1 + 1.0e-6) << "s: " << s << " is larger than s1: " << s1;
+  CHECK(!p0.lane_waypoints().empty());
+  CHECK(!p1.lane_waypoints().empty());
+
+  auto map_path_point = map_path_.GetSmoothPoint(index);
+  double upper_bound = 0.0;
+  double lower_bound = 0.0;
+  map_path_.GetWidth(s, &upper_bound, &lower_bound);
+
+  const double kappa = common::math::lerp(p0.kappa(), s0, p1.kappa(), s1, s);
+  const double dkappa = common::math::lerp(p0.dkappa(), s0, p1.dkappa(), s1, s);
+
+  return ReferencePoint(map_path_point, kappa, dkappa, lower_bound,
+                        upper_bound);
+}
+
 ReferencePoint ReferenceLine::Interpolate(const ReferencePoint& p0,
                                           const double s0,
                                           const ReferencePoint& p1,
@@ -301,7 +329,7 @@ ReferencePoint ReferenceLine::Interpolate(const ReferencePoint& p0,
     return p0;
   }
   DCHECK_LE(s0 - 1.0e-6, s) << " s: " << s << " is less than s0 :" << s0;
-  DCHECK_LE(s, s1 + 1.0e-6) << "s: " << s << "is larger than s1: " << s1;
+  DCHECK_LE(s, s1 + 1.0e-6) << "s: " << s << " is larger than s1: " << s1;
 
   CHECK(!p0.lane_waypoints().empty());
   CHECK(!p1.lane_waypoints().empty());
@@ -355,6 +383,18 @@ bool ReferenceLine::IsOnRoad(const common::math::Vec2d& vec2d_point) const {
   return IsOnRoad(sl_point);
 }
 
+bool ReferenceLine::IsOnRoad(const SLBoundary& sl_boundary) const {
+  if (sl_boundary.end_s() < 0 || sl_boundary.start_s() > Length()) {
+    return false;
+  }
+  double middle_s = (sl_boundary.start_s() + sl_boundary.end_s()) / 2.0;
+  double left_width = 0.0;
+  double right_width = 0.0;
+  map_path_.GetWidth(middle_s, &left_width, &right_width);
+  return sl_boundary.start_l() >= -right_width &&
+         sl_boundary.end_l() <= left_width;
+}
+
 bool ReferenceLine::IsBlockRoad(const common::math::Box2d& box2d,
                                 double gap) const {
   return map_path_.OverlapWith(box2d, gap);
@@ -375,6 +415,47 @@ bool ReferenceLine::IsOnRoad(const SLPoint& sl_point) const {
     return false;
   }
 
+  return true;
+}
+
+// return a rough approximated SLBoundary using box length. It is guaranteed to
+// be larger than the accurate SL boundary.
+bool ReferenceLine::GetApproximateSLBoundary(
+    const common::math::Box2d& box, const double start_s, const double end_s,
+    SLBoundary* const sl_boundary) const {
+  double s = 0.0;
+  double l = 0.0;
+  double distance = 0.0;
+  if (!map_path_.GetProjectionWithHueristicParams(box.center(), start_s, end_s,
+                                                  &s, &l, &distance)) {
+    AERROR << "Can't get projection point from path.";
+    return false;
+  }
+
+  auto projected_point = map_path_.GetSmoothPoint(s);
+  auto rotated_box = box;
+  rotated_box.RotateFromCenter(-projected_point.heading());
+
+  std::vector<common::math::Vec2d> corners;
+  rotated_box.GetAllCorners(&corners);
+
+  double min_s(std::numeric_limits<double>::max());
+  double max_s(std::numeric_limits<double>::lowest());
+  double min_l(std::numeric_limits<double>::max());
+  double max_l(std::numeric_limits<double>::lowest());
+
+  for (const auto& point : corners) {
+    // x <--> s, y <--> l
+    // because the box is rotated to align the reference line
+    min_s = std::fmin(min_s, point.x() - rotated_box.center().x() + s);
+    max_s = std::fmax(max_s, point.x() - rotated_box.center().x() + s);
+    min_l = std::fmin(min_l, point.y() - rotated_box.center().y() + l);
+    max_l = std::fmax(max_l, point.y() - rotated_box.center().y() + l);
+  }
+  sl_boundary->set_start_s(min_s);
+  sl_boundary->set_end_s(max_s);
+  sl_boundary->set_start_l(min_l);
+  sl_boundary->set_end_l(max_l);
   return true;
 }
 

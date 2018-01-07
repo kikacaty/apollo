@@ -16,9 +16,9 @@
 
 #include "modules/dreamview/backend/simulation_world/simulation_world_updater.h"
 
+#include "modules/common/util/json_util.h"
 #include "modules/common/util/map_util.h"
 #include "modules/dreamview/backend/common/dreamview_gflags.h"
-#include "modules/dreamview/backend/util/json_util.h"
 #include "modules/map/hdmap/hdmap_util.h"
 
 namespace apollo {
@@ -26,8 +26,9 @@ namespace dreamview {
 
 using apollo::common::adapter::AdapterManager;
 using apollo::common::monitor::MonitorMessageItem;
-using apollo::common::util::GetProtoFromASCIIFile;
 using apollo::common::util::ContainsKey;
+using apollo::common::util::GetProtoFromASCIIFile;
+using apollo::common::util::JsonUtil;
 using apollo::hdmap::EndWayPointFile;
 using apollo::routing::RoutingRequest;
 using Json = nlohmann::json;
@@ -49,7 +50,7 @@ SimulationWorldUpdater::SimulationWorldUpdater(WebSocketHandler *websocket,
           MapElementIds map_element_ids(*iter);
           auto retrieved = map_service_->RetrieveMapElements(map_element_ids);
           websocket_->SendData(
-              conn, util::JsonUtil::ProtoToTypedJson("MapData", retrieved));
+              conn, JsonUtil::ProtoToTypedJson("MapData", retrieved).dump());
         }
       });
 
@@ -104,19 +105,22 @@ SimulationWorldUpdater::SimulationWorldUpdater(WebSocketHandler *websocket,
           return;
         }
 
-        bool requestPlanning = false;
         auto planning = json.find("planning");
         if (planning != json.end() && planning->is_boolean()) {
-          requestPlanning = json["planning"];
+          enable_pnc_monitor_ = json["planning"];
         }
-
         std::string to_send;
         {
           // Pay the price to copy the data instead of sending data over the
           // wire while holding the lock.
           boost::shared_lock<boost::shared_mutex> reader_lock(mutex_);
-          to_send = requestPlanning ? simulation_world_with_planning_json_
-                                    : simulation_world_json_;
+          to_send = enable_pnc_monitor_ ? simulation_world_with_planning_json_
+                                        : simulation_world_json_;
+        }
+        if (FLAGS_enable_update_size_check && !enable_pnc_monitor_ &&
+            to_send.size() > FLAGS_max_update_size) {
+          AWARN << "update size is too big:" << to_send.size();
+          return;
         }
         websocket_->SendData(conn, to_send, true);
       });
@@ -258,8 +262,10 @@ void SimulationWorldUpdater::OnTimer(const ros::TimerEvent &event) {
         sim_world_service_.GetUpdateAsJson(FLAGS_sim_map_radius);
     simulation_world_json_ = simulation_world.dump();
 
-    simulation_world["planningData"] = sim_world_service_.GetPlanningData();
-    simulation_world_with_planning_json_ = simulation_world.dump();
+    if (enable_pnc_monitor_) {
+      simulation_world["planningData"] = sim_world_service_.GetPlanningData();
+      simulation_world_with_planning_json_ = simulation_world.dump();
+    }
   }
 }
 

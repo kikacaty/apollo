@@ -61,6 +61,9 @@ namespace adapter {
   static name##Adapter *Get##name() {                                          \
     return instance()->InternalGet##name();                                    \
   }                                                                            \
+  static AdapterConfig &Get##name##Config() {                                  \
+    return instance()->name##config_;                                          \
+  }                                                                            \
   static bool Feed##name##File(const std::string &proto_file) {                \
     if (!instance()->name##_) {                                                \
       AERROR << "Initialize adapter before feeding protobuf";                  \
@@ -87,6 +90,11 @@ namespace adapter {
       void (T::*fp)(const name##Adapter::DataType &data), T *obj) {            \
     Add##name##Callback(std::bind(fp, obj, std::placeholders::_1));            \
   }                                                                            \
+  template <class T>                                                           \
+  static void Add##name##Callback(                                             \
+      void (T::*fp)(const name##Adapter::DataType &data)) {                    \
+    Add##name##Callback(fp);                                                   \
+  }                                                                            \
   /* Returns false if there's no callback to pop out, true otherwise. */       \
   static bool Pop##name##Callback() {                                          \
     return instance()->name##_->PopCallback();                                 \
@@ -96,6 +104,7 @@ namespace adapter {
   std::unique_ptr<name##Adapter> name##_;                                      \
   ros::Publisher name##publisher_;                                             \
   ros::Subscriber name##subscriber_;                                           \
+  AdapterConfig name##config_;                                                 \
                                                                                \
   void InternalEnable##name(const std::string &topic_name,                     \
                             const AdapterConfig &config) {                     \
@@ -112,6 +121,7 @@ namespace adapter {
     }                                                                          \
                                                                                \
     observers_.push_back([this]() { name##_->Observe(); });                    \
+    name##config_ = config;                                                    \
   }                                                                            \
   name##Adapter *InternalGet##name() { return name##_.get(); }                 \
   void InternalPublish##name(const name##Adapter::DataType &data) {            \
@@ -198,7 +208,7 @@ class AdapterManager {
    * rate. It takes a class member function, and a bare pointer to the
    * object to call the method on.
    */
-  template<class T>
+  template <class T>
   static ros::Timer CreateTimer(ros::Duration period,
                                 void (T::*callback)(const ros::TimerEvent &),
                                 T *obj, bool oneshot = false,
@@ -230,6 +240,7 @@ class AdapterManager {
   REGISTER_ADAPTER(ControlCommand);
   REGISTER_ADAPTER(Gps);
   REGISTER_ADAPTER(Imu);
+  REGISTER_ADAPTER(RawImu);
   REGISTER_ADAPTER(Localization);
   REGISTER_ADAPTER(Monitor);
   REGISTER_ADAPTER(Pad);
@@ -247,10 +258,19 @@ class AdapterManager {
   REGISTER_ADAPTER(InsStatus);
   REGISTER_ADAPTER(GnssStatus);
   REGISTER_ADAPTER(SystemStatus);
+  REGISTER_ADAPTER(StaticInfo);
   REGISTER_ADAPTER(Mobileye);
   REGISTER_ADAPTER(DelphiESR);
   REGISTER_ADAPTER(ContiRadar);
   REGISTER_ADAPTER(CompressedImage);
+  REGISTER_ADAPTER(GnssRtkObs);
+  REGISTER_ADAPTER(GnssRtkEph);
+  REGISTER_ADAPTER(GnssBestPose);
+  REGISTER_ADAPTER(LocalizationMsfGnss);
+  REGISTER_ADAPTER(LocalizationMsfLidar);
+  REGISTER_ADAPTER(LocalizationMsfSinsPva);
+  REGISTER_ADAPTER(LocalizationMsfStatus);
+
   DECLARE_SINGLETON(AdapterManager);
 };
 

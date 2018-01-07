@@ -77,9 +77,30 @@ bool RadarProcessSubnode::InitInternal() {
 
   CHECK(AdapterManager::GetContiRadar()) << "Radar is not initialized.";
   AdapterManager::AddContiRadarCallback(&RadarProcessSubnode::OnRadar, this);
-  CHECK(AdapterManager::GetGps()) << "Gps is not initialized.";
-  AdapterManager::AddGpsCallback(&RadarProcessSubnode::OnGps, this);
-  gps_buffer_.set_capacity(FLAGS_gps_buffer_size);
+  CHECK(AdapterManager::GetLocalization()) << "Localiztion is not initialized.";
+  AdapterManager::AddLocalizationCallback(
+    &RadarProcessSubnode::OnLocalization, this);
+  localization_buffer_.set_capacity(FLAGS_localization_buffer_size);
+  std::string radar_extrinstic_path = FLAGS_radar_extrinsic_file;
+  AINFO << "radar extrinsic path: " << radar_extrinstic_path;
+  Eigen::Affine3d radar_extrinsic;
+  if (!LoadExtrinsic(radar_extrinstic_path, &radar_extrinsic)) {
+    AERROR << "Failed to load extrinsic.";
+    return false;
+  }
+  radar_extrinsic_ = radar_extrinsic.matrix();
+  AINFO << "get radar extrinsic succ. pose: \n" << radar_extrinsic_;
+
+  std::string short_camera_extrinsic_path = FLAGS_short_camera_extrinsic_file;
+  AINFO << "short camera extrinsic path: " << short_camera_extrinsic_path;
+  Eigen::Affine3d short_camera_extrinsic;
+  if (!LoadExtrinsic(short_camera_extrinsic_path, &short_camera_extrinsic)) {
+    AERROR << "Failed to load extrinsic.";
+    return false;
+  }
+  short_camera_extrinsic_ = short_camera_extrinsic.matrix();
+  AINFO << "get short camera  extrinsic succ. pose: \n"
+    << short_camera_extrinsic_;
   inited_ = true;
 
   return true;
@@ -112,12 +133,15 @@ void RadarProcessSubnode::OnRadar(const ContiRadar &radar_obs) {
          << " num_raw_obstacles: " << radar_obs_proto.contiobs_size() << "]";
 
   // 1. get radar pose
-  std::shared_ptr<Matrix4d> radar2world_pose = std::make_shared<Matrix4d>();
-  if (!GetRadarTrans(timestamp, radar2world_pose.get())) {
+  std::shared_ptr<Matrix4d> velodyne2world_pose = std::make_shared<Matrix4d>();
+  if (!GetVelodyneTrans(timestamp, velodyne2world_pose.get())) {
     AERROR << "Failed to get trans at timestamp: " << GLOG_TIMESTAMP(timestamp);
     error_code_ = common::PERCEPTION_ERROR_TF;
     return;
   }
+  std::shared_ptr<Matrix4d> radar2world_pose = std::make_shared<Matrix4d>();
+  *radar2world_pose = *velodyne2world_pose *
+    short_camera_extrinsic_ *  radar_extrinsic_;
   AINFO << "get radar trans pose succ. pose: \n" << *radar2world_pose;
 
   // Current Localiztion, radar postion.
@@ -180,13 +204,14 @@ void RadarProcessSubnode::OnRadar(const ContiRadar &radar_obs) {
   return;
 }
 
-void RadarProcessSubnode::OnGps(const apollo::localization::Gps &gps) {
-  double timestamp = gps.header().timestamp_sec();
-  AINFO << "gps timestamp:" << GLOG_TIMESTAMP(timestamp);
-  ObjectPair obj_pair;
-  obj_pair.first = timestamp;
-  obj_pair.second = gps;
-  gps_buffer_.push_back(obj_pair);
+void RadarProcessSubnode::OnLocalization(
+  const apollo::localization::LocalizationEstimate &localization) {
+  double timestamp = localization.header().timestamp_sec();
+  AINFO << "localization timestamp:" << GLOG_TIMESTAMP(timestamp);
+  LocalizationPair localization_pair;
+  localization_pair.first = timestamp;
+  localization_pair.second = localization;
+  localization_buffer_.push_back(localization_pair);
 }
 
 bool RadarProcessSubnode::GetCarLinearSpeed(double timestamp,
@@ -196,34 +221,34 @@ bool RadarProcessSubnode::GetCarLinearSpeed(double timestamp,
     AERROR << "Param car_linear_speed NULL error.";
     return false;
   }
-  if (gps_buffer_.empty()) {
+  if (localization_buffer_.empty()) {
     AWARN << "Rosmsg buffer is empty.";
     return false;
   }
-  if (gps_buffer_.front().first - 0.1 > timestamp) {
+  if (localization_buffer_.front().first - 0.1 > timestamp) {
     AWARN << "Timestamp (" << GLOG_TIMESTAMP(timestamp)
           << ") is earlier than the oldest "
-          << "timestamp (" << gps_buffer_.front().first << ").";
+          << "timestamp (" << localization_buffer_.front().first << ").";
     return false;
   }
-  if (gps_buffer_.back().first + 0.1 < timestamp) {
+  if (localization_buffer_.back().first + 0.1 < timestamp) {
     AWARN << "Timestamp (" << GLOG_TIMESTAMP(timestamp)
           << ") is newer than the latest "
-          << "timestamp (" << gps_buffer_.back().first << ").";
+          << "timestamp (" << localization_buffer_.back().first << ").";
     return false;
   }
   // loop to find nearest
   double distance = 1e9;
-  int idx = gps_buffer_.size() - 1;
+  int idx = localization_buffer_.size() - 1;
   for (; idx >= 0; --idx) {
-    double temp_distance = fabs(timestamp - gps_buffer_[idx].first);
+    double temp_distance = fabs(timestamp - localization_buffer_[idx].first);
     if (temp_distance >= distance) {
       break;
     }
     distance = temp_distance;
   }
   const auto &velocity =
-      gps_buffer_[idx + 1].second.localization().linear_velocity();
+      localization_buffer_[idx].second.pose().linear_velocity();
   (*car_linear_speed)[0] = velocity.x();
   (*car_linear_speed)[1] = velocity.y();
   (*car_linear_speed)[2] = velocity.z();

@@ -56,6 +56,7 @@ void PlanningTestBase::SetUpTestCase() {
   FLAGS_enable_reference_line_provider_thread = false;
   FLAGS_enable_trajectory_check = true;
   FLAGS_planning_test_mode = true;
+  FLAGS_enable_lag_prediction = false;
 }
 
 bool PlanningTestBase::SetUpAdapters() {
@@ -185,11 +186,6 @@ bool PlanningTestBase::RunPlanning(const std::string& test_case_name,
 }
 
 bool PlanningTestBase::IsValidTrajectory(const ADCTrajectory& trajectory) {
-  if (trajectory.trajectory_point().empty()) {
-    AERROR << "trajectory has NO point.";
-    return false;
-  }
-
   for (int i = 0; i < trajectory.trajectory_point_size(); ++i) {
     const auto& point = trajectory.trajectory_point(i);
 

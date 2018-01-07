@@ -33,4 +33,20 @@ proto_library(
     ],
 )
 
+cc_proto_library(
+    name = "online_report_proto",
+    deps = [
+        ":online_report_proto_lib",
+    ],
+)
+
+proto_library(
+    name = "online_report_proto_lib",
+    srcs = ["online_report.proto"],
+    deps = [
+        "//modules/common/proto:vehicle_state_proto_lib",
+        "//modules/data/proto:static_info_proto_lib",
+    ],
+)
+
 cpplint()

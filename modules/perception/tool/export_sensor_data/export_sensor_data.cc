@@ -21,6 +21,7 @@
 #include <iostream>
 #include <fstream>
 
+#include "Eigen/Core"
 #include "modules/common/adapters/adapter_manager.h"
 #include "modules/common/log.h"
 #include "modules/perception/common/perception_gflags.h"
@@ -29,9 +30,10 @@
 #include "ros/include/ros/ros.h"
 #include "sensor_msgs/PointCloud2.h"
 #include "modules/perception/onboard/transform_input.h"
+#include "modules/perception/obstacle/common/pose_util.h"
 
 DEFINE_string(lidar_path,
-  "modules/perception/tool/export_sensor_data/pcd/", "lidar path");
+  "modules/perception/tool/export_sensor_data/lidar/", "lidar path");
 DEFINE_string(radar_path,
   "modules/perception/tool/export_sensor_data/radar/", "radar path");
 
@@ -55,9 +57,34 @@ Status ExportSensorData::Init() {
                                         this);
   CHECK(AdapterManager::GetContiRadar()) << "Radar is not initialized.";
   AdapterManager::AddContiRadarCallback(&ExportSensorData::OnRadar, this);
-  CHECK(AdapterManager::GetGps()) << "Gps is not initialized.";
-  AdapterManager::AddGpsCallback(&ExportSensorData::OnGps, this);
-  gps_buffer_.set_capacity(FLAGS_gps_buffer_size);
+  CHECK(AdapterManager::GetLocalization())
+    << "Localization is not initialized.";
+  AdapterManager::AddLocalizationCallback(
+    &ExportSensorData::OnLocalization, this);
+  localization_buffer_.set_capacity(FLAGS_localization_buffer_size);
+
+  /// load radar-camera extrinsic
+  std::string radar_extrinsic_path = FLAGS_radar_extrinsic_file;
+  Eigen::Affine3d radar_extrinsic;
+  if (!LoadExtrinsic(radar_extrinsic_path, &radar_extrinsic)) {
+    AERROR << "Failed to load extrinsic from file " << radar_extrinsic_path;
+    return Status(ErrorCode::PERCEPTION_ERROR_TF, "Failed to load extrinsic");
+  }
+  AINFO << "get radar extrinsic succ. pose: \n" << radar_extrinsic.matrix();
+  /// load camera-velodyne extrinsic
+  std::string short_camera_extrinsic_path = FLAGS_short_camera_extrinsic_file;
+  Eigen::Affine3d short_camera_extrinsic;
+  if (!LoadExtrinsic(short_camera_extrinsic_path, &short_camera_extrinsic)) {
+    AERROR << "Failed to load extrinsic from file "
+           << short_camera_extrinsic_path;
+    return Status(ErrorCode::PERCEPTION_ERROR_TF, "Failed to load extrinsic");
+  }
+  AINFO << "get short camera  extrinsic succ. pose: \n"
+    << short_camera_extrinsic.matrix();
+  /// get radar-velodyne extrinsic
+  radar2velodyne_extrinsic_ = short_camera_extrinsic.matrix()
+                              * radar_extrinsic.matrix();
+
   return Status::OK();
 }
 
@@ -78,28 +105,27 @@ void ExportSensorData::WritePose(const std::string &file_pre,
   std::string filename = file_pre + ".pose";
   std::fstream fout(filename.c_str(), std::ios::out | std::ios::binary);
   if (!fout.is_open()) {
-    AINFO << "Failed to write radar pose.";
+    AINFO << "Failed to write pose.";
   }
-  fout << timestamp << " " << seq_num << " "
-       << pose(0, 0) << " " << pose(0, 1) << " "
-       << pose(0, 2) << " " << pose(0, 3) << " "
-       << pose(1, 0) << " " << pose(1, 1) << " "
-       << pose(1, 2) << " " << pose(1, 3) << " "
-       << pose(2, 0) << " " << pose(2, 1) << " "
-       << pose(2, 2) << " " << pose(2, 3);
+  Eigen::Matrix3f mat3f = pose.block<3, 3>(0, 0).cast<float>();
+  Eigen::Quaternionf quaternion(mat3f);
+  fout << std::setprecision(16) << seq_num << " " << timestamp << " "
+       << pose(0, 3) << " " << pose(1, 3) << " " << pose(2, 3) << " "
+       << quaternion.x() << " " << quaternion.y() << " "
+       << quaternion.z() << " " << quaternion.w() << std::endl;
   fout.close();
 }
 
-void ExportSensorData::WriteGpsInfo(const std::string &file_pre,
+void ExportSensorData::WriteVelocityInfo(const std::string &file_pre,
   const double& timestamp, const int seq_num,
   const Eigen::Vector3f& velocity) {
-  std::string filename = file_pre + ".gps";
+  std::string filename = file_pre + ".velocity";
   std::fstream fout(filename.c_str(), std::ios::out | std::ios::binary);
   if (!fout.is_open()) {
-    AINFO << "Failed to write gps.";
+    AINFO << "Failed to write velocity.";
   }
-  fout << timestamp << " " << seq_num << " "
-       << velocity(0) << " " << velocity(1) << " " << velocity(2);
+  fout << std::setprecision(16) << seq_num << " " << timestamp << " "
+       << velocity(0) << " " << velocity(1) << " " << velocity(2) << std::endl;
   fout.close();
 }
 
@@ -156,7 +182,7 @@ void ExportSensorData::OnPointCloud(
   std::shared_ptr<Eigen::Matrix4d> velodyne_trans =
     std::make_shared<Eigen::Matrix4d>();
   if (!GetVelodyneTrans(kTimeStamp, velodyne_trans.get())) {
-    AERROR << "failed to get trans at timestamp: "
+    AERROR << "failed to get velodyne trans at timestamp: "
            << GLOG_TIMESTAMP(kTimeStamp);
     return;
   }
@@ -197,12 +223,16 @@ void ExportSensorData::OnRadar(const ContiRadar &radar_obs) {
   ADEBUG << "recv radar msg: [timestamp: " << GLOG_TIMESTAMP(timestamp)
          << " num_raw_obstacles: " << radar_obs_proto.contiobs_size() << "]";
 
-  std::shared_ptr<Eigen::Matrix4d> radar2world_pose =
+  std::shared_ptr<Eigen::Matrix4d> velo2world_pose =
     std::make_shared<Eigen::Matrix4d>();
-  if (!GetRadarTrans(timestamp, radar2world_pose.get())) {
-    AERROR << "Failed to get trans at timestamp: " << GLOG_TIMESTAMP(timestamp);
+  if (!GetVelodyneTrans(timestamp, velo2world_pose.get())) {
+    AERROR << "Failed to get radar trans at timestamp: "
+           << GLOG_TIMESTAMP(timestamp);
     return;
   }
+  std::shared_ptr<Eigen::Matrix4d> radar2world_pose
+                                   = std::make_shared<Eigen::Matrix4d>();
+  *radar2world_pose = *velo2world_pose * radar2velodyne_extrinsic_;
   AINFO << "get radar trans pose succ. pose: \n" << *radar2world_pose;
 
   Eigen::Vector3f car_linear_speed;
@@ -219,16 +249,17 @@ void ExportSensorData::OnRadar(const ContiRadar &radar_obs) {
   AINFO << "radar file pre: " << file_pre;
   WriteRadar(file_pre, radar_obs_proto);
   WritePose(file_pre, timestamp, seq_num, *radar2world_pose);
-  WriteGpsInfo(file_pre, timestamp, seq_num, car_linear_speed);
+  WriteVelocityInfo(file_pre, timestamp, seq_num, car_linear_speed);
 }
 
-void ExportSensorData::OnGps(const apollo::localization::Gps &gps) {
-  double timestamp = gps.header().timestamp_sec();
-  AINFO << "gps timestamp:" << GLOG_TIMESTAMP(timestamp);
-  ObjectPair obj_pair;
-  obj_pair.first = timestamp;
-  obj_pair.second = gps;
-  gps_buffer_.push_back(obj_pair);
+void ExportSensorData::OnLocalization(
+  const apollo::localization::LocalizationEstimate &localization) {
+  double timestamp = localization.header().timestamp_sec();
+  AINFO << "localization timestamp:" << GLOG_TIMESTAMP(timestamp);
+  LocalizationPair localization_pair;
+  localization_pair.first = timestamp;
+  localization_pair.second = localization;
+  localization_buffer_.push_back(localization_pair);
 }
 
 bool ExportSensorData::GetCarLinearSpeed(double timestamp,
@@ -238,34 +269,34 @@ bool ExportSensorData::GetCarLinearSpeed(double timestamp,
     AERROR << "Param car_linear_speed NULL error.";
     return false;
   }
-  if (gps_buffer_.empty()) {
+  if (localization_buffer_.empty()) {
     AWARN << "Rosmsg buffer is empty.";
     return false;
   }
-  if (gps_buffer_.front().first - 0.1 > timestamp) {
+  if (localization_buffer_.front().first - 0.1 > timestamp) {
     AWARN << "Timestamp (" << GLOG_TIMESTAMP(timestamp)
           << ") is earlier than the oldest "
-          << "timestamp (" << gps_buffer_.front().first << ").";
+          << "timestamp (" << localization_buffer_.front().first << ").";
     return false;
   }
-  if (gps_buffer_.back().first + 0.1 < timestamp) {
+  if (localization_buffer_.back().first + 0.1 < timestamp) {
     AWARN << "Timestamp (" << GLOG_TIMESTAMP(timestamp)
           << ") is newer than the latest "
-          << "timestamp (" << gps_buffer_.back().first << ").";
+          << "timestamp (" << localization_buffer_.back().first << ").";
     return false;
   }
   // loop to find nearest
   double distance = 1e9;
-  int idx = gps_buffer_.size() - 1;
+  int idx = localization_buffer_.size() - 1;
   for (; idx >= 0; --idx) {
-    double temp_distance = fabs(timestamp - gps_buffer_[idx].first);
+    double temp_distance = fabs(timestamp - localization_buffer_[idx].first);
     if (temp_distance >= distance) {
       break;
     }
     distance = temp_distance;
   }
   const auto &velocity =
-      gps_buffer_[idx + 1].second.localization().linear_velocity();
+      localization_buffer_[idx].second.pose().linear_velocity();
   (*car_linear_speed)[0] = velocity.x();
   (*car_linear_speed)[1] = velocity.y();
   (*car_linear_speed)[2] = velocity.z();

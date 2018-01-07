@@ -4,19 +4,16 @@ import PARAMETERS from "store/config/parameters.yml";
 
 export default class Options {
     // Side Bar options
-    @observable showConsole = PARAMETERS.options.defaults.showConsole;
     @observable showModuleController = PARAMETERS.options.defaults.showModuleController;
+    @observable showMenu = PARAMETERS.options.defaults.showMenu;
     @observable showPNCMonitor = PARAMETERS.options.defaults.showPNCMonitor;
     @observable showRouteEditingBar = PARAMETERS.options.defaults.showRouteEditingBar;
     @observable showPOI = PARAMETERS.options.defaults.showPOI;
     @observable showVideo = PARAMETERS.options.defaults.showVideo;
+    @observable showTasks =
+        OFFLINE_PLAYBACK ? false : PARAMETERS.options.defaults.showTasks;
 
-    @observable showMenu =
-        OFFLINE_PLAYBACK ? true : PARAMETERS.options.defaults.showMenu;
-    @observable showQuickStarter =
-        OFFLINE_PLAYBACK ? false : PARAMETERS.options.defaults.showQuickStarter;
-
-    mutuallyExclusiveOptions = ['showQuickStarter', 'showModuleController',
+    mutuallyExclusiveOptions = ['showTasks', 'showModuleController',
         'showMenu', 'showRouteEditingBar'];
 
     // Layer Menu options
@@ -48,12 +45,17 @@ export default class Options {
         PARAMETERS.options.defaults.showObstaclesId;
     @observable cameraAngle = PARAMETERS.options.defaults.cameraAngle;
 
+    @observable hideOptions = {
+        'planningQpOptimizer': true,
+        'planingDpOptimizer': true,
+        'planningReference': true,
+    };
+
 
     @computed get showTools() {
-        return this.showQuickStarter ||
+        return this.showTasks ||
                this.showModuleController ||
                this.showMenu ||
-               this.showConsole ||
                this.showPOI;
     }
 
@@ -74,6 +76,12 @@ export default class Options {
                     this[other] = false;
                 }
             }
+        }
+
+        if (option === "showPNCMonitor") {
+            this.hideOptions['planningQpOptimizer'] = !this[option];
+            this.hideOptions['planingDpOptimizer'] = !this[option];
+            this.hideOptions['planningReference'] = !this[option];
         }
     }
 

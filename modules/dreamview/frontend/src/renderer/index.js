@@ -27,7 +27,7 @@ class Renderer {
             antialias: useAntialias
         });
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x14171A);
+        this.scene.background = new THREE.Color(0x000C17);
 
         // The dimension of the scene
         this.dimension = {
@@ -253,11 +253,6 @@ class Renderer {
     }
 
     addDefaultEndPoint(points) {
-        if (!this.routingEditor.isInEditingMode()) {
-            this.routingEditor.addRoutingPoint(
-                    this.coordinates.applyOffset(this.adc.mesh.position, true),
-                    this.coordinates, this.scene);
-        }
         for (let i = 0; i < points.length; i++) {
             this.routingEditor.addRoutingPoint(points[i], this.coordinates, this.scene);
         }

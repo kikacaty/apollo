@@ -117,6 +117,9 @@ void Object::Serialize(PerceptionObstacle* pb_obj) const {
     }
   }
 
+  pb_obj->set_confidence(score);
+  pb_obj->set_confidence_type(
+    static_cast<PerceptionObstacle::ConfidenceType>(score_type));
   pb_obj->set_tracking_time(tracking_time);
   pb_obj->set_type(static_cast<PerceptionObstacle::Type>(type));
   pb_obj->set_timestamp(latest_tracked_time);  // in seconds.
@@ -148,6 +151,8 @@ void Object::Deserialize(const PerceptionObstacle& pb_obs) {
     polygon.push_back(point);
   }
 
+  score = pb_obs.confidence();
+  score_type = static_cast<ScoreType>(pb_obs.confidence_type());
   tracking_time = pb_obs.tracking_time();
   latest_tracked_time = pb_obs.timestamp();
   type = static_cast<ObjectType>(pb_obs.type());

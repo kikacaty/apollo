@@ -99,38 +99,18 @@ void FrameContent::OffsetObject(ObjectPtr object,
   object->center[2] += offset[2];
 }
 
-void FrameContent::SetTrackedObjectsLidar(
+void FrameContent::SetTrackedObjects(
     const std::vector<ObjectPtr> &objects) {
-  tracked_objects_lidar_.resize(objects.size());
+  tracked_objects_.resize(objects.size());
   for (size_t i = 0; i < objects.size(); ++i) {
-    tracked_objects_lidar_[i].reset(new Object);
-    tracked_objects_lidar_[i]->clone(*objects[i]);
-    OffsetObject(tracked_objects_lidar_[i], global_offset_);
-  }
-}
-
-void FrameContent::SetTrackedObjectsRadar(
-    const std::vector<ObjectPtr> &objects) {
-  tracked_objects_radar_.resize(objects.size());
-  for (size_t i = 0; i < objects.size(); ++i) {
-    tracked_objects_radar_[i].reset(new Object);
-    tracked_objects_radar_[i]->clone(*objects[i]);
-    OffsetObject(tracked_objects_radar_[i], global_offset_);
-  }
-}
-
-void FrameContent::SetTrackedObjectsFused(
-    const std::vector<ObjectPtr> &objects) {
-  tracked_objects_fused_.resize(objects.size());
-  for (size_t i = 0; i < objects.size(); ++i) {
-    tracked_objects_fused_[i].reset(new Object);
-    tracked_objects_fused_[i]->clone(*objects[i]);
-    OffsetObject(tracked_objects_fused_[i], global_offset_);
+    tracked_objects_[i].reset(new Object);
+    tracked_objects_[i]->clone(*objects[i]);
+    OffsetObject(tracked_objects_[i], global_offset_);
   }
 }
 
 std::vector<ObjectPtr> FrameContent::GetTrackedObjects() {
-  return tracked_objects_lidar_;
+  return tracked_objects_;
 }
 
 }  // namespace perception

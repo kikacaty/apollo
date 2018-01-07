@@ -19,6 +19,8 @@
 #include "gflags/gflags.h"
 #include "modules/common/log.h"
 #include "modules/common/util/file.h"
+#include "modules/common/util/string_util.h"
+#include "modules/monitor/common/monitor_manager.h"
 
 DEFINE_string(process_monitor_name, "ProcessMonitor",
               "Name of the process monitor.");
@@ -79,6 +81,13 @@ void ProcessMonitor::UpdateModule(
       return;
     }
   }
+
+  if (status->process_status().running()) {
+    // The process stopped. Send monitor log.
+    MonitorManager::LogBuffer().ERROR(
+        apollo::common::util::StrCat(module_name, " process stopped!"));
+  }
+
   status->mutable_process_status()->set_running(false);
 }
 

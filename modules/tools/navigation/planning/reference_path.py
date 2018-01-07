@@ -73,34 +73,59 @@ class ReferencePath:
             path_y.append(y)
         return path_x, path_y
 
-    def get_ref_path_by_lmr(self, perception, routing, localization, chassis):
+    def get_ref_path_by_lmr(self, perception, routing, adv):
 
-        path_length = self.get_path_length(chassis.get_speed_mps())
+        path_length = self.get_path_length(adv.speed_mps)
 
+        rpath_x, rpath_y = routing.get_local_segment_spline(adv.x,
+                                                            adv.y,
+                                                            adv.heading)
         init_y_perception = (perception.right_lm_coef[0] +
                              perception.left_lm_coef[0]) / -2.0
-        init_y = self.get_ref_path_init_y(init_y_perception)
-        self.init_y_last = init_y
+        quality = perception.right_lm_quality + perception.left_lm_quality
+        quality = quality / 2.0
+
+        if len(rpath_x) >= path_length and routing.human and rpath_y[0] <= 3:
+            init_y_routing = rpath_y[0]
+            init_y = self.get_ref_path_init_y(init_y_routing)
+            if quality > 0.1:
+                quality = 0.1
+            self.init_y_last = init_y
+        else:
+            init_y = self.get_ref_path_init_y(init_y_perception)
+            self.init_y_last = init_y
 
         lmpath_x, lmpath_y = self._get_perception_ref_path(
             perception, path_length, init_y)
 
-        quality = perception.right_lm_quality + perception.left_lm_quality
-        quality = quality / 2.0
-
-        rpath_x, rpath_y = routing.get_local_segment_spline(localization.x,
-                                                            localization.y,
-                                                            localization.heading)
-
-        if (len(rpath_x) < path_length):
+        if len(rpath_x) < path_length:
             return lmpath_x, lmpath_y, path_length
 
         routing_shift = rpath_y[0] - init_y
         path_x = []
         path_y = []
         for i in range(int(path_length)):
-            y = (lmpath_y[i] * quality + rpath_y[i] - routing_shift) / (1 + quality)
+            # TODO(yifei): more accurate shift is needed.
+            y = (lmpath_y[i] * quality + rpath_y[i] - routing_shift) / (
+                1 + quality)
             path_x.append(i)
             path_y.append(y)
 
         return path_x, path_y, path_length
+
+    def shift_point(self, p, p2, distance):
+        delta_y = p2.y - p.y
+        delta_x = p2.x - p.x
+        angle = 0
+        if distance >= 0:
+            angle = math.atan2(delta_y, delta_x) + math.pi / 2.0
+        else:
+            angle = math.atan2(delta_y, delta_x) - math.pi / 2.0
+        p1n = []
+        p1n.append(p.x + (math.cos(angle) * distance))
+        p1n.append(p.y + (math.sin(angle) * distance))
+
+        p2n = []
+        p2n.append(p2.x + (math.cos(angle) * distance))
+        p2n.append(p2.y + (math.sin(angle) * distance))
+        return p1n, p2n

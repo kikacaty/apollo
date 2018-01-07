@@ -13,6 +13,14 @@ cc_library(
     ],
 )
 
+cc_binary(
+    name = "vehicle_manager_main",
+    srcs = ["vehicle_manager_main.cc"],
+    deps = [
+        ":vehicle_manager",
+    ],
+)
+
 cc_library(
     name = "hmi",
     srcs = ["hmi.cc"],
@@ -20,13 +28,14 @@ cc_library(
     deps = [
         ":vehicle_manager",
         "//modules/common/adapters:adapter_manager",
+        "//modules/common/kv_db",
+        "//modules/common/util:http_client",
+        "//modules/common/util:json_util",
         "//modules/common/util:map_util",
-        "//modules/data/proto:task_proto",
+        "//modules/data/proto:static_info_proto",
         "//modules/dreamview/backend/common:dreamview_gflags",
         "//modules/dreamview/backend/handlers:websocket",
         "//modules/dreamview/backend/map:map_service",
-        "//modules/dreamview/backend/util:http_client",
-        "//modules/dreamview/backend/util:json_util",
         "//modules/dreamview/proto:hmi_config_proto",
         "//modules/dreamview/proto:hmi_status_proto",
         "@com_google_protobuf//:protobuf",

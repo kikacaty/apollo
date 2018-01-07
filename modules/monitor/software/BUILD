@@ -8,7 +8,9 @@ cc_library(
     hdrs = ["process_monitor.h"],
     deps = [
         "//external:gflags",
-        "//modules/monitor/common:monitor_interface",
+        "//modules/common/util:string_util",
+        "//modules/monitor/common:monitor_manager",
+        "//modules/monitor/common:recurrent_runner",
     ],
 )
 
@@ -19,7 +21,8 @@ cc_library(
     deps = [
         "//modules/common/adapters:adapter_manager",
         "//modules/common/util:string_util",
-        "//modules/monitor/common:monitor_interface",
+        "//modules/monitor/common:monitor_manager",
+        "//modules/monitor/common:recurrent_runner",
     ],
 )
 
@@ -30,7 +33,8 @@ cc_library(
     deps = [
         "//modules/common/adapters:adapter_manager",
         "//modules/common/util:string_util",
-        "//modules/monitor/common:monitor_interface",
+        "//modules/monitor/common:monitor_manager",
+        "//modules/monitor/common:recurrent_runner",
     ],
 )
 

@@ -36,6 +36,7 @@
 #include "modules/planning/tasks/dp_poly_path/dp_poly_path_optimizer.h"
 #include "modules/planning/tasks/dp_st_speed/dp_st_speed_optimizer.h"
 #include "modules/planning/tasks/path_decider/path_decider.h"
+#include "modules/planning/tasks/poly_st_speed/poly_st_speed_optimizer.h"
 #include "modules/planning/tasks/qp_spline_path/qp_spline_path_optimizer.h"
 #include "modules/planning/tasks/qp_spline_st_speed/qp_spline_st_speed_optimizer.h"
 #include "modules/planning/tasks/speed_decider/speed_decider.h"
@@ -64,11 +65,11 @@ void EMPlanner::RegisterTasks() {
                          []() -> Task* { return new DpStSpeedOptimizer(); });
   task_factory_.Register(SPEED_DECIDER,
                          []() -> Task* { return new SpeedDecider(); });
-  task_factory_.Register(QP_SPLINE_PATH_OPTIMIZER,
-                         []() -> Task* { return new QpSplinePathOptimizer(); });
   task_factory_.Register(QP_SPLINE_ST_SPEED_OPTIMIZER, []() -> Task* {
     return new QpSplineStSpeedOptimizer();
   });
+  task_factory_.Register(POLY_ST_SPEED_OPTIMIZER,
+                         []() -> Task* { return new PolyStSpeedOptimizer(); });
 }
 
 Status EMPlanner::Init(const PlanningConfig& config) {
@@ -103,7 +104,18 @@ void EMPlanner::RecordObstacleDebugInfo(
     auto obstacle_debug = ptr_debug->mutable_planning_data()->add_obstacle();
     obstacle_debug->set_id(path_obstacle->Id());
     obstacle_debug->mutable_sl_boundary()->CopyFrom(
-        path_obstacle->perception_sl_boundary());
+        path_obstacle->PerceptionSLBoundary());
+    const auto& decider_tags = path_obstacle->decider_tags();
+    const auto& decisions = path_obstacle->decisions();
+    if (decider_tags.size() != decisions.size()) {
+      AERROR << "decider_tags size: " << decider_tags.size()
+             << " different from decisions size:" << decisions.size();
+    }
+    for (size_t i = 0; i < decider_tags.size(); ++i) {
+      auto decision_tag = obstacle_debug->add_decision_tag();
+      decision_tag->set_decider_tag(decider_tags[i]);
+      decision_tag->mutable_decision()->CopyFrom(decisions[i]);
+    }
   }
 }
 
@@ -128,9 +140,14 @@ void EMPlanner::RecordDebugInfo(ReferenceLineInfo* reference_line_info,
 
 Status EMPlanner::Plan(const TrajectoryPoint& planning_start_point,
                        Frame* frame, ReferenceLineInfo* reference_line_info) {
-  const double kStraightForwardLineCost = 10.0;
-  if (reference_line_info->Lanes().NextAction() != routing::FORWARD &&
-      reference_line_info->Lanes().IsOnSegment()) {
+  if (!reference_line_info->IsInited()) {
+    if (!reference_line_info->Init(frame->obstacles())) {
+      AERROR << "Failed to init reference line";
+      return Status(ErrorCode::PLANNING_ERROR, "Init reference line failed");
+    }
+  }
+  if (!reference_line_info->IsChangeLanePath()) {
+    const double kStraightForwardLineCost = 10.0;
     reference_line_info->AddCost(kStraightForwardLineCost);
   }
 
@@ -193,7 +210,7 @@ Status EMPlanner::Plan(const TrajectoryPoint& planning_start_point,
 
   reference_line_info->SetTrajectory(trajectory);
   if (ret == Status::OK()) {  // vehicle can drive on this reference line.
-    reference_line_info->SetDriable(true);
+    reference_line_info->SetDrivable(true);
   }
   return ret;
 }

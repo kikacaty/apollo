@@ -22,6 +22,7 @@
 #include <string>
 #include <utility>
 
+#include "Eigen/Core"
 #include "modules/common/apollo_app.h"
 #include "modules/common/macro.h"
 #include "modules/perception/onboard/dag_streaming.h"
@@ -29,7 +30,7 @@
 #include "sensor_msgs/PointCloud2.h"
 #include "modules/perception/obstacle/radar/modest/conti_radar_id_expansion.h"
 #include "modules/common/adapters/adapter_manager.h"
-#include "modules/localization/proto/gps.pb.h"
+#include "modules/localization/proto/localization.pb.h"
 #include "modules/perception/lib/pcl_util/pcl_types.h"
 
 /**
@@ -47,14 +48,15 @@ class ExportSensorData{
  private:
   void OnPointCloud(const sensor_msgs::PointCloud2& message);
   void OnRadar(const ContiRadar &radar_obs);
-  void OnGps(const apollo::localization::Gps &gps);
+  void OnLocalization(
+    const apollo::localization::LocalizationEstimate &localization);
   bool GetCarLinearSpeed(double timestamp,
     Eigen::Vector3f *car_linear_speed);
   void WriteRadar(const std::string &file_pre, const ContiRadar &radar_obs);
   void WritePose(const std::string &file_pre,
     const double timestamp, const int seq_num,
     const Eigen::Matrix4d& pose);
-  void WriteGpsInfo(const std::string &file_pre,
+  void WriteVelocityInfo(const std::string &file_pre,
     const double& timestamp, const int seq_num,
     const Eigen::Vector3f& velocity);
   void WritePCD(const std::string &file_pre,
@@ -62,10 +64,12 @@ class ExportSensorData{
   void TransPointCloudToPCL(
     const sensor_msgs::PointCloud2& in_msg,
     pcl_util::PointCloudPtr* out_cloud);
-  typedef std::pair<double, apollo::localization::Gps> ObjectPair;
-  boost::circular_buffer<ObjectPair> gps_buffer_;
+  typedef std::pair<double,
+    apollo::localization::LocalizationEstimate> LocalizationPair;
+  boost::circular_buffer<LocalizationPair> localization_buffer_;
   ContiRadarIDExpansion _conti_id_expansion;
   Mutex mutex_;
+  Eigen::Matrix4d radar2velodyne_extrinsic_;
 };
 
 }  // namespace perception

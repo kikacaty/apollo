@@ -2,7 +2,7 @@ import React from "react";
 import { observer } from "mobx-react";
 import classNames from "classnames";
 
-import MenuItemRadio from 'components/common/MenuItemRadio';
+import RadioItem from 'components/common/RadioItem';
 
 import menuData from 'store/config/MenuData';
 import perceptionIcon from "assets/images/menu/Perception.png";
@@ -73,6 +73,9 @@ class SubMenu extends React.Component {
             entries = Object.keys(data)
                 .map(key => {
                     const item = data[key];
+                    if (options.hideOptions[key]) {
+                        return null;
+                    }
                     return (
                         <MenuItemCheckbox key={key} id={key} title={item}
                         options={options}/>
@@ -82,13 +85,16 @@ class SubMenu extends React.Component {
             entries = Object.keys(data)
                 .map(key => {
                     const item = data[key];
+                    if (options.hideOptions[key]) {
+                        return null;
+                    }
                     return (
-                        <MenuItemRadio key={`${tabId}_${key}`} id={tabId}
-                                       onClick={() => {
+                        <RadioItem key={`${tabId}_${key}`} id={tabId}
+                                   onClick={() => {
                                             options.selectCamera(item);
-                                        }}
-                                       checked={options.cameraAngle === item}
-                                       title={item} options={options}/>
+                                   }}
+                                   checked={options.cameraAngle === item}
+                                   title={item} options={options}/>
                     );
                 });
         }
@@ -111,6 +117,7 @@ class SubMenu extends React.Component {
 export default class Menu extends React.Component {
     render() {
         const { options } = this.props;
+
         const subMenu = Object.keys(menuData)
             .map(key => {
                 const item = menuData[key];

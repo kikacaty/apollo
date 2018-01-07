@@ -43,9 +43,9 @@ function start() {
   fi
 
   # Create and enter into bag dir.
-  if [ ! -e "${BAG_DIR}" ]; then
-    mkdir -p "${BAG_DIR}"
-  fi
+  TASK_ID=$(date +%Y-%m-%d-%H-%M-%S)
+  BAG_DIR="${BAG_DIR}/${TASK_ID}"
+  mkdir -p "${BAG_DIR}"
   cd "${BAG_DIR}"
   echo "Recording bag to: $(pwd)"
 
@@ -54,16 +54,17 @@ function start() {
   NUM_PROCESSES="$(pgrep -c -f "rosbag record")"
   if [ "${NUM_PROCESSES}" -eq 0 ]; then
     nohup rosbag record --split --duration=1m -b 2048  \
-        /apollo/sensor/camera/traffic/image_short \
-        /apollo/sensor/camera/traffic/image_long \
         /apollo/sensor/conti_radar \
         /apollo/sensor/delphi_esr \
-        /apollo/sensor/gnss/gnss_status \
-        /apollo/sensor/gnss/odometry \
-        /apollo/sensor/gnss/ins_stat \
+        /apollo/sensor/gnss/best_pose \
         /apollo/sensor/gnss/corrected_imu \
+        /apollo/sensor/gnss/gnss_status \
+        /apollo/sensor/gnss/imu \
+        /apollo/sensor/gnss/ins_stat \
+        /apollo/sensor/gnss/odometry \
+        /apollo/sensor/gnss/rtk_eph \
+        /apollo/sensor/gnss/rtk_obs \
         /apollo/sensor/mobileye \
-        /apollo/sensor/velodyne64/compensator/PointCloud2 \
         /apollo/canbus/chassis \
         /apollo/canbus/chassis_detail \
         /apollo/control \
@@ -75,15 +76,20 @@ function start() {
         /apollo/routing_request \
         /apollo/routing_response \
         /apollo/localization/pose \
+        /apollo/localization/msf_gnss \
+        /apollo/localization/msf_lidar \
+        /apollo/localization/msf_status \
         /apollo/drive_event \
         /tf \
         /tf_static \
-        /apollo/monitor </dev/null >"${LOG}" 2>&1 &
+        /apollo/monitor \
+        /apollo/monitor/system_status \
+        /apollo/monitor/static_info </dev/null >"${LOG}" 2>&1 &
     fi
 }
 
 function stop() {
-  pkill -SIGINT -f rosbag
+  pkill -SIGINT -f record
 }
 
 function help() {

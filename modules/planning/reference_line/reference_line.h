@@ -81,6 +81,9 @@ class ReferenceLine {
   ReferencePoint GetNearestReferencepoint(const double s) const;
   ReferencePoint GetReferencePoint(const double x, const double y) const;
 
+  bool GetApproximateSLBoundary(const common::math::Box2d& box,
+                                const double start_s, const double end_s,
+                                SLBoundary* const sl_boundary) const;
   bool GetSLBoundary(const common::math::Box2d& box,
                      SLBoundary* const sl_boundary) const;
 
@@ -88,11 +91,20 @@ class ReferenceLine {
               common::math::Vec2d* const xy_point) const;
   bool XYToSL(const common::math::Vec2d& xy_point,
               common::SLPoint* const sl_point) const;
+  template <class XYPoint>
+  bool XYToSL(const XYPoint& xy, common::SLPoint* const sl_point) const {
+    return XYToSL(common::math::Vec2d(xy.x(), xy.y()), sl_point);
+  }
 
   bool GetLaneWidth(const double s, double* const left_width,
                     double* const right_width) const;
   bool IsOnRoad(const common::SLPoint& sl_point) const;
   bool IsOnRoad(const common::math::Vec2d& vec2d_point) const;
+  template <class XYPoint>
+  bool IsOnRoad(const XYPoint& xy) const {
+    return IsOnRoad(common::math::Vec2d(xy.x(), xy.y()));
+  }
+  bool IsOnRoad(const SLBoundary& sl_boundary) const;
 
   /**
    * @brief Check if a box is blocking the road surface. The crieria is to check
@@ -137,6 +149,9 @@ class ReferenceLine {
   static ReferencePoint Interpolate(const ReferencePoint& p0, const double s0,
                                     const ReferencePoint& p1, const double s1,
                                     const double s);
+  ReferencePoint InterpolateWithMatchedIndex(
+      const ReferencePoint& p0, const double s0, const ReferencePoint& p1,
+      const double s1, const hdmap::InterpolatedIndex& index) const;
 
   static double FindMinDistancePoint(const ReferencePoint& p0, const double s0,
                                      const ReferencePoint& p1, const double s1,

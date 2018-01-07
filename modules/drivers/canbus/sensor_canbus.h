@@ -21,13 +21,13 @@
 #ifndef MODULES_DRIVERS_CANBUS_SENSOR_CANBUS_H_
 #define MODULES_DRIVERS_CANBUS_SENSOR_CANBUS_H_
 
+#include <condition_variable>
 #include <memory>
+#include <mutex>
 #include <string>
+#include <thread>
 #include <utility>
 #include <vector>
-#include <mutex>
-#include <thread>
-#include <condition_variable>
 
 #include "ros/include/ros/ros.h"
 
@@ -35,7 +35,7 @@
 #include "modules/common/adapters/proto/adapter_config.pb.h"
 #include "modules/common/apollo_app.h"
 #include "modules/common/macro.h"
-#include "modules/common/monitor/monitor.h"
+#include "modules/common/monitor_log/monitor_log_buffer.h"
 #include "modules/common/time/time.h"
 #include "modules/common/util/util.h"
 #include "modules/control/proto/control_cmd.pb.h"
@@ -77,7 +77,7 @@ class SensorCanbus : public apollo::common::ApolloApp {
   // TODO(lizh): check whether we need a new msg item, say
   // MonitorMessageItem::SENSORCANBUS
   SensorCanbus()
-      : monitor_(apollo::common::monitor::MonitorMessageItem::CANBUS) {}
+      : monitor_logger_(apollo::common::monitor::MonitorMessageItem::CANBUS) {}
 
   /**
   * @brief obtain module name
@@ -106,7 +106,7 @@ class SensorCanbus : public apollo::common::ApolloApp {
   void PublishSensorData();
   void OnTimer(const ros::TimerEvent &event);
   void DataTrigger();
-  apollo::common::Status OnError(const std::string &error_msg);
+  common::Status OnError(const std::string &error_msg);
   void RegisterCanClients();
 
   SensorCanbusConf canbus_conf_;
@@ -117,7 +117,7 @@ class SensorCanbus : public apollo::common::ApolloApp {
 
   int64_t last_timestamp_ = 0;
   ros::Timer timer_;
-  apollo::common::monitor::Monitor monitor_;
+  common::monitor::MonitorLogger monitor_logger_;
   std::mutex mutex_;
   volatile bool data_trigger_running_ = false;
 };
@@ -135,8 +135,7 @@ Status SensorCanbus<SensorType>::Init() {
   AINFO << "The adapter manager is successfully initialized.";
 
   // load conf
-  if (!::apollo::common::util::GetProtoFromFile(FLAGS_sensor_conf_file,
-                                                &canbus_conf_)) {
+  if (!common::util::GetProtoFromFile(FLAGS_sensor_conf_file, &canbus_conf_)) {
     return OnError("Unable to load canbus conf file: " +
                    FLAGS_sensor_conf_file);
   }
@@ -153,8 +152,7 @@ Status SensorCanbus<SensorType>::Init() {
   }
   AINFO << "Can client is successfully created.";
 
-  sensor_message_manager_ = std::unique_ptr<canbus::MessageManager<SensorType>>(
-      new canbus::MessageManager<SensorType>());
+  sensor_message_manager_.reset(new canbus::MessageManager<SensorType>());
   if (sensor_message_manager_ == nullptr) {
     return OnError("Failed to create message manager.");
   }
@@ -200,7 +198,7 @@ Status SensorCanbus<SensorType>::Start() {
   }
 
   // last step: publish monitor messages
-  apollo::common::monitor::MonitorBuffer buffer(&monitor_);
+  common::monitor::MonitorLogBuffer buffer(&monitor_logger_);
   buffer.INFO("Canbus is started.");
 
   return Status::OK();
@@ -217,8 +215,6 @@ void SensorCanbus<SensorType>::DataTrigger() {
   while (data_trigger_running_) {
     std::unique_lock<std::mutex> lock(mutex_);
     cvar->wait(lock);
-    // TODO(lizh): this log is for test. Please remove it after onboard test.
-    AINFO << "===== Publish Sensor Data =====";
     PublishSensorData();
     sensor_message_manager_->ClearSensorData();
   }
@@ -245,7 +241,7 @@ void SensorCanbus<SensorType>::Stop() {
 // Send the error to monitor and return it
 template <typename SensorType>
 Status SensorCanbus<SensorType>::OnError(const std::string &error_msg) {
-  apollo::common::monitor::MonitorBuffer buffer(&monitor_);
+  common::monitor::MonitorLogBuffer buffer(&monitor_logger_);
   buffer.ERROR(error_msg);
   return Status(ErrorCode::CANBUS_ERROR, error_msg);
 }

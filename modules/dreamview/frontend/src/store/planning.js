@@ -20,8 +20,10 @@ export default class Planning {
       stGraph: {},
       stSpeedGraph: {},
       speedGraph: {},
+      accelerationGraph: {},
       kappaGraph: {},
       dkappaGraph: {},
+      dpPolyGraph: {},
     };
   }
 
@@ -165,6 +167,14 @@ export default class Planning {
     }
   }
 
+  updateAccelerationGraph(trajectory) {
+    const graph = this.data.accelerationGraph;
+    if (trajectory) {
+      graph.acceleration =
+          this.extractDataPoints(trajectory, 'timestampSec', 'speedAcceleration');
+    }
+  }
+
   updateKappaGraph(paths) {
     for (const path of paths) {
       this.data.kappaGraph[path.name] =
@@ -205,6 +215,23 @@ export default class Planning {
     }
   }
 
+  updateDpPolyGraph(dpPolyData) {
+    const graph = this.data.dpPolyGraph;
+
+    if (dpPolyData.sampleLayer) {
+      graph.sampleLayer = [];
+      for (const sample of dpPolyData.sampleLayer) {
+        sample.slPoint.map(({s, l}) => {
+          graph.sampleLayer.push({x:s, y:l});
+        });
+      }
+    }
+
+    if (dpPolyData.minCostPoint) {
+      graph.minCostPoint = this.extractDataPoints(dpPolyData.minCostPoint, 's', 'l');
+    }
+  }
+
   update(world, planningData) {
     this.updateSequenceNum(world.sequenceNum);
     this.data = this.initData();
@@ -219,13 +246,21 @@ export default class Planning {
         this.updateSTSpeedGraph(planningData.stGraph);
       }
 
-      if (planningData.speedPlan) {
+      if (planningData.speedPlan && world.planningTrajectory) {
         this.updateSpeed(planningData.speedPlan, world.planningTrajectory);
+      }
+
+      if (world.planningTrajectory) {
+        this.updateAccelerationGraph(world.planningTrajectory);
       }
 
       if (planningData.path) {
         this.updateKappaGraph(planningData.path);
         this.updateDkappaGraph(planningData.path);
+      }
+
+      if (planningData.dpPolyGraph) {
+        this.updateDpPolyGraph(planningData.dpPolyGraph);
       }
     }
 

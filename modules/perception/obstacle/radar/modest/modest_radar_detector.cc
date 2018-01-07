@@ -21,6 +21,7 @@
 #include "modules/perception/obstacle/radar/modest/conti_radar_util.h"
 #include "modules/perception/obstacle/radar/modest/object_builder.h"
 #include "modules/perception/obstacle/radar/modest/radar_util.h"
+#include "modules/perception/common/perception_gflags.h"
 
 namespace apollo {
 namespace perception {
@@ -154,6 +155,7 @@ bool ModestRadarDetector::Init() {
   }
   object_builder_.SetContiParams(conti_params_);
   radar_tracker_.reset(new RadarTrackManager());
+
   AINFO << "Initialize the modest radar  detector";
   return true;
 }
@@ -206,7 +208,7 @@ bool ModestRadarDetector::CollectRadarResult(std::vector<ObjectPtr> *objects) {
   for (size_t i = 0; i < obs_track.size(); ++i) {
     ObjectPtr object_ptr = ObjectPtr(new Object());
     const ObjectPtr &object_radar_ptr = obs_track[i].GetObsRadar();
-    if (object_radar_ptr->is_background) {
+    if (use_fp_filter_ && object_radar_ptr->is_background) {
       continue;
     }
     object_ptr->clone(*object_radar_ptr);

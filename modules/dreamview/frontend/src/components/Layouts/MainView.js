@@ -33,7 +33,7 @@ class SceneView extends React.Component {
                     ? <RouteEditingBar />
                     : <StatusBar meters={meters}
                                  trafficSignal={trafficSignal}
-                                 showNotification={!options.showConsole}
+                                 showNotification={!options.showTasks}
                                  monitor={monitor}/>}
                 {options.showVideo && <SensorCamera /> }
                 {OFFLINE_PLAYBACK && <PlaybackControls />}
@@ -49,7 +49,7 @@ export default class MainView extends React.Component {
 
         if (hmi.showNavigationMap) {
             return <Navigation height={sceneDimension.height}/>;
-        } else if (!isInitialized) {
+        } else if (!isInitialized && !OFFLINE_PLAYBACK) {
             return <Loader height={sceneDimension.height}/>;
         } else {
             return <SceneView />;
